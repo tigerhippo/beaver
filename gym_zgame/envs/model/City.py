@@ -714,7 +714,7 @@ class City:
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
             # People who are sickly and active want to stay in place
-            if npc.sickly and npc.active:
+            if npc.sickly or npc.active:
                 for _ in range(2):
                     npc.add_to_bag(NPC_ACTIONS.STAY)
 
@@ -723,7 +723,7 @@ class City:
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
             # People who are sickly and active want to stay in place
-            if npc.sickly and npc.active:
+            if npc.sickly or npc.active:
                 for _ in range(9):
                     npc.add_to_bag(NPC_ACTIONS.STAY)
 
