@@ -104,6 +104,7 @@ class City:
             dead_npc.change_dead_state(NPC_STATES_DEAD.DEAD)
             dead_npcs.append(dead_npc)
         dead_loc.add_NPCs(dead_npcs)
+        
         # Add 1 zombie in a random location
         zombie_loc = random.choice(self.neighborhoods)
         zombie_npc = NPC()
