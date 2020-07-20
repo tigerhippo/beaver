@@ -329,7 +329,7 @@ class City:
 
     def _art_trans_flu_vaccine_free(self, nbh_index):
         nbh = self.neighborhoods[nbh_index]
-        vaccine_success = min(0, 0.2 - (0.01 * self.fear))
+        vaccine_success = max(0, 0.2 - (0.01 * self.fear))
         for npc in nbh.NPCs:
             if (npc.state_flu is not NPC_STATES_FLU.IMMUNE) and (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE):
                 if random.random() <= vaccine_success:
@@ -415,9 +415,9 @@ class City:
 
             # Update based on deployments
             if DEPLOYMENTS.KILN_OVERSIGHT in nbh.deployments:
-                burial_prob = max(1.0, burial_prob * 1.5)
+                burial_prob = min(1.0, burial_prob * 1.5)
             if DEPLOYMENTS.KILN_NO_QUESTIONS in nbh.deployments:
-                burial_prob = max(1.0, burial_prob * 5.0)
+                burial_prob = min(1.0, burial_prob * 5.0)
 
             # Universal Law: Burial
             for npc in nbh.NPCs:
@@ -441,13 +441,13 @@ class City:
 
             # Update based on deployments
             if DEPLOYMENTS.BSL4LAB_SAFETY_OFF in nbh.deployments:
-                fumes_prob = max(1.0, fumes_prob * 10.0)
+                fumes_prob = min(1.0, fumes_prob * 10.0)
             if DEPLOYMENTS.SOCIAL_DISTANCING_SIGNS in nbh.deployments:
-                cough_prob = max(1.0, fumes_prob * 0.75)
-                fumes_prob = max(1.0, fumes_prob * 0.75)
+                cough_prob = min(1.0, fumes_prob * 0.75)
+                fumes_prob = min(1.0, fumes_prob * 0.75)
             if DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY in nbh.deployments:
-                cough_prob = max(1.0, fumes_prob * 0.25)
-                fumes_prob = max(1.0, fumes_prob * 0.25)
+                cough_prob = min(1.0, fumes_prob * 0.25)
+                fumes_prob = min(1.0, fumes_prob * 0.25)
 
             # Flu Laws
             for npc in nbh.NPCs:
@@ -492,20 +492,20 @@ class City:
 
             # Update based on deployments
             if DEPLOYMENTS.BITE_CENTER_DISINFECT in nbh.deployments:
-                turn_prob = max(1.0, turn_prob * 0.5)
+                turn_prob = min(1.0, turn_prob * 0.5)
             if DEPLOYMENTS.BITE_CENTER_AMPUTATE in nbh.deployments:
-                turn_prob = max(1.0, turn_prob * 0.05)
+                turn_prob = min(1.0, turn_prob * 0.05)
             if DEPLOYMENTS.BROADCAST_CALL_TO_ARMS in nbh.deployments:
-                fight_back_prob = max(1.0, fight_back_prob * 5.0)
-                devour_prob = max(1.0, devour_prob * 1.25)
+                fight_back_prob = min(1.0, fight_back_prob * 5.0)
+                devour_prob = min(1.0, devour_prob * 1.25)
             if DEPLOYMENTS.BSL4LAB_SAFETY_OFF in nbh.deployments:
-                rise_prob = max(1.0, rise_prob * 10.0)
+                rise_prob = min(1.0, rise_prob * 10.0)
             if DEPLOYMENTS.SOCIAL_DISTANCING_SIGNS in nbh.deployments:
-                bite_prob = max(1.0, bite_prob * 0.75)
-                fight_back_prob = max(1.0, fight_back_prob * 0.75)
+                bite_prob = min(1.0, bite_prob * 0.75)
+                fight_back_prob = min(1.0, fight_back_prob * 0.75)
             if DEPLOYMENTS.SOCIAL_DISTANCING_SIGNS in nbh.deployments:
-                bite_prob = max(1.0, bite_prob * 0.25)
-                fight_back_prob = max(1.0, fight_back_prob * 0.25)
+                bite_prob = min(1.0, bite_prob * 0.25)
+                fight_back_prob = min(1.0, fight_back_prob * 0.25)
 
             # Zombie Laws
             for npc in nbh.NPCs:
