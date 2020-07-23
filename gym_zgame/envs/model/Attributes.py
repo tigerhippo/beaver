@@ -11,3 +11,12 @@ class Attributes:
         return self.fear 
     def get_morale(self):
         return self.fear
+    def get_trust(self):
+        return self.morale
+
+    def set_fear(self, num):
+        self.fear = num
+    def set_morale(self, num):
+        self.morale = num    
+    def set_trust(self, num):
+        self.trust = num

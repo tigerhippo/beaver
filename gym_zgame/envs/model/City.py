@@ -18,6 +18,7 @@ class City:
         self.neighborhoods = []
         self._init_neighborhoods(loc_npc_range)
         self._init_neighborhood_threats()
+        self.atts = Attributes(0, 0, 0, 0)
         self.fear = 0
         self.resources = 10
         self.delta_fear = 0

@@ -32,10 +32,7 @@ class Neighborhood:
         self.num_sickly = 0
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
-        self.fear = 0.0
-        self.morale = 0.0
-        self.trust = 0.0
-
+        self.atts = Attributes(0, 0, 0, 0)
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
