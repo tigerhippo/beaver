@@ -191,13 +191,6 @@ class Neighborhood:
                              'deployments': self.deployments}
         return neighborhood_data
 
-    def get_fear(self):
-        return self.fear
-    def get_morale(self):
-        return self.morale
-    def get_trust(self):
-        return self.trust
-
 
 if __name__ == '__main__':
     nb = Neighborhood('CENTER', LOCATIONS.CENTER, (LOCATIONS.N, LOCATIONS.S, LOCATIONS.W, LOCATIONS.E), 10)
