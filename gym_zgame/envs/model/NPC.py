@@ -26,6 +26,7 @@ class NPC:
         self.update_states()
         self.bag = []
         self.empty_bag()
+        self.atts = Attributes(0, 0, 0, 0)
 
     def empty_bag(self):
         self.bag = []
