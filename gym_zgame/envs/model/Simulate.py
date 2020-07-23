@@ -9,6 +9,7 @@
     #coward = Coward()
     #personalities = [normal, karen, nerd, lunatic, rebel, coward]
 
+    #combine these methods
     # 50% chance of disobeying
 
     #def _shouldDisobeyKaren_(self):
@@ -35,7 +36,7 @@
                 #set trust for object
                 #set morale for object
 
-                
+
 
     #disobeys 100% of the time
 

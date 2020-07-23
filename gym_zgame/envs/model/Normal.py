@@ -10,6 +10,7 @@ class Normal(Personality):
 
     def __str__(self):
         percentage = Normal.pop_percent * 100
+        #make this part more readable
         return "This person is of personality type " + Normal.type_name + ", has a fear level of " + str(self.fear) + ", " + "a trust level of " + str(self.trust) + ", " + "and a morale level of " + str(self.morale) + ", and accounts for " + str(percentage) + "% of the population."
     
 
