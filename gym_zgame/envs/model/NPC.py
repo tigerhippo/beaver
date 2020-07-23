@@ -4,8 +4,16 @@ from gym_zgame.envs.enums.NPC_STATES import NPC_STATES_DEAD, NPC_STATES_ZOMBIE, 
 from gym_zgame.envs.enums.NPC_ACTIONS import NPC_ACTIONS
 from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS
 
-
+#may place code from Simulate class into NPC class to connect personality classes with the actual representation of the people
 class NPC:
+
+    #normal = Normal()
+    #karen = Karen()
+    #nerd = Nerd()
+    #lunatic = Lunatic()
+    #rebel = Rebel()
+    #coward = Coward()
+    #personalities = [normal, karen, nerd, lunatic, rebel, coward]
 
     def __init__(self):
         self.id = uuid.uuid4()
@@ -62,12 +70,15 @@ class NPC:
 
     def change_dead_state(self, npc_states_dead):
         self.state_dead = npc_states_dead
+        self.update_states()
 
     def change_zombie_state(self, npc_states_zombie):
         self.state_zombie = npc_states_zombie
+        self.update_states()
 
     def change_flu_state(self, npc_states_flu):
         self.state_flu = npc_states_flu
+        self.update_states()
 
     def add_to_bag(self, npc_action):
         self.bag.append(npc_action)
@@ -76,6 +87,7 @@ class NPC:
         self.bag.remove(npc_action)
 
     def selection(self):
+        #self.clean_bag()
         return random.choice(self.bag)
 
     def get_data(self):
@@ -87,6 +99,35 @@ class NPC:
                        'active': self.active,
                        'sickly': self.sickly}
         return player_data
+
+     #def _shouldDisobeyKaren_(self):
+        #generate random number 0 - 9
+        #if num < 5
+            #factors = karen._disobey_(self)
+            #for i in range(len(factors)):
+                #except for Karen:
+                #set fear for object
+                #set trust for object
+                #set morale for object
+    
+    #def _shouldDisobeyRebel_(self):
+        #generate random number 0 - 9
+        #if num < 8 
+            #factors = rebel._disobey_(self)
+            #for i in range(len(factors)):
+                #except for rebel
+                #set fear for object
+                #set trust for object
+                #set morale for object
+
+    #def _shouldDisobeyLunatic_(self):
+        #will disobey 100% of the time
+        #factors = lunatic._disobey_(self)
+        #for i in range(len(factors)):
+            #except for Lunatic:
+            #set fear for object
+            #set trust for object
+            #set morale for object
 
 
 if __name__ == '__main__':
