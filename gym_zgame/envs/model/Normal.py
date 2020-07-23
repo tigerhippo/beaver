@@ -1,14 +1,18 @@
-from gym_zgame.envs.model.Personality import Personality
-#REMEMBER TO DOCUMENT CLASSES!
-class Normal(Personality): #For people with normal personality
-    type_name = "Normal" #Name of person type
-    pop_percent = 0.5 #0.5 * total number of people = total number of Normal people
+from Personality import Personality
+#subclass - for people with normal personality
+class Normal(Personality): 
+    type_name = "Normal" 
+    pop_percent = 0.5 #largest percent of population
 
+    #no extra methods other than the ones the class implements from Personality 
     def __init__(self, fear, trust, morale):
         super().__init__(fear, trust, morale)
 
-    def __format__(self, format):
-        super().__format__(format)
-
+    def __str__(self):
+        percentage = Normal.pop_percent * 100
+        return "This person is of personality type " + Normal.type_name + ", has a fear level of " + str(self.fear) + ", " + "a trust level of " + str(self.trust) + ", " + "and a morale level of " + str(self.morale) + ", and accounts for " + str(percentage) + "% of the population."
     
+
+
+
     

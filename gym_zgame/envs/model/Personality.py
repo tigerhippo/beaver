@@ -1,22 +1,15 @@
 #REMEMBER TO DOCUMENT CLASSES!
+#Personality class is the superclass for all other classes pertaining to personalities
 class Personality:
-    #fear = 0
-    #trust = 0
-    #morale = 0
-    type_name = " "
-    pop_percent = 0.0
+    type_name = " " #class variable - does not change - name for this personality type
+    pop_percent = 0.0 #class variable - does not change - percentage of population which has this type of personality
 
-    #def __init__(self, fear, trust, morale, type_name, pop_percent):
-        #self.fear = fear
-        #self.trust = trust
-        #self.morale = morale
-        #self.type_name = type_name
-        #self.pop_percent = pop_percent
-
-    def __init__(self, fear, trust, morale):
-        self.fear = fear
-        self.trust = trust
-        self.morale = morale
+    def __init__(self, fear, trust, morale): #instance variables are initiated - these may change and thus have getters and setters
+        self.fear = fear #int value
+        self.trust = trust #int value
+        self.morale = morale #int value
+    
+    #getters and setters are not written in subclasses but can still be called by subclasses
     
     def _getFear_(self):
         return self.fear
@@ -26,12 +19,6 @@ class Personality:
 
     def _getMorale_(self):
         return self.morale
-    
-    #def _getTypeName_(self):
-        #return self.type_name
-    
-    #def _getPopPercent_(self):
-        #return self.pop_percent
 
     def _setFear_(self, fear):
         self.fear = fear
@@ -41,18 +28,27 @@ class Personality:
 
     def _setMorale_(self, morale):
         self.morale = morale
+    
+    #not sure if necessary, but are these methods are here just in case (addFear to subMorale)
+    def _addFear_(self):
+        self.fear += 0
 
-    #def _setTypeName_(self, type_name):
-        #self.type_name = type_name
+    def _addTrust_(self):
+        self.trust += 0
 
-    #def _setPopPercent_(self, pop_percent):
-        #self.pop_percent = pop_percent
+    def _addMorale_(self):
+        self.morale += 0
 
-    #def __format__(self, format):
-        #percentage = self.pop_percent * 100
-        #return "This person is of personality type " + self.type_name + " has a fear level of " + self.fear + ", " + "a trust level of " + self.trust + ", " + "and a morale level of " + self.morale + " and accounts for " + percentage + "% of the population."
+    def _subFear_(self):
+        self.fear -= 0
 
-    def __format__(self, format):
+    def _subTrust_(self):
+        self.fear -= 0
+
+    def _subMorale_(self):
+        self.morale -= 0
+
+    def __str__(self): #displays a clear representation of all important attributes this object has
         percentage = Personality.pop_percent * 100
-        return "This person is of personality type " + Personality.type_name + " has a fear level of " + self.fear + ", " + "a trust level of " + self.trust + ", " + "and a morale level of " + self.morale + " and accounts for " + percentage + "% of the population."
+        return "This person is of personality type " + Personality.type_name + ", has a fear level of " + str(self.fear) + ", " + "a trust level of " + str(self.trust) + ", " + "and a morale level of " + str(self.morale) + ", and accounts for " + str(percentage) + "% of the population."
     
