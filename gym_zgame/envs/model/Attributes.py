@@ -1,11 +1,13 @@
 
 class Attributes:
-    def __init__(self):
+    def __init__(self, group, fear, morale, trust):
+        #idk enums so 0 means npc, 1 means neighborhood, 2 means city, change if u want to
+        self.group = group
+        self.fear = fear
+        self.morale = morale
+        self.trust = trust
 
-    def calculate_average(self, arr = []):
-        total = 0
-        for x in range(0, len(arr)):
-            total += x
-        return total / len(arr)
-
-    
+    def get_fear(self):
+        return self.fear 
+    def get_morale(self):
+        return self.fear

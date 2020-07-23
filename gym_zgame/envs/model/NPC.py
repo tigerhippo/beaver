@@ -18,9 +18,7 @@ class NPC:
         self.update_states()
         self.bag = []
         self.empty_bag()
-        self.fear = 0
-        self.morale = 0
-        self.trust = 0
+        self.atts = Attributes(0, 0, 0, 0)
 
     def empty_bag(self):
         self.bag = []
