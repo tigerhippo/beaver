@@ -10,6 +10,7 @@ class Neighborhood:
         self.id = id
         self.location = location
         self.NPCs = []
+        #dictionary stores the number of NPCs with each personality type
         self.breakdown = {"normal":0, "karen":0, "nerd":0, "lunatic":0, "rebel":0, "coward":0}
         self.adj_locations = adj_locations
         self._npc_init(num_init_npcs)
@@ -33,7 +34,9 @@ class Neighborhood:
         self.num_sickly = 0
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
+        #1 represents Attribute object in Neighborhood class
         self.atts = Attributes(1, 0, 0, 0)
+    
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
@@ -170,6 +173,7 @@ class Neighborhood:
         assert (self.num_npcs == total_count_flu)
 
     def get_data(self):
+        #added breakdown and atts data
         self.update_summary_stats()
         neighborhood_data = {'id': self.id,
                              'location': self.location,
@@ -189,8 +193,18 @@ class Neighborhood:
                              'num_sickly': self.num_sickly,
                              'original_alive': self.orig_alive,
                              'original_dead': self.orig_dead,
-                             'deployments': self.deployments}
+                             'deployments': self.deployments,
+                             'breakdown': self.breakdown,
+                             'atts': self.atts}
         return neighborhood_data
+
+    #added setter
+    def set_breakdown(self, breakdown):
+        self.breakdown = breakdown
+    
+    #added setter
+    def set_atts(self, atts):
+        self.atts = atts
 
 
 if __name__ == '__main__':

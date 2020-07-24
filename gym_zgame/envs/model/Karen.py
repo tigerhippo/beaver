@@ -5,7 +5,7 @@ class Karen(NPC):
         super().__init__()
         self.atts = Attributes(0, 50, 50, 50)
         self.personality = "karen"
-        self.percent = 0.25
+        self.percent = 0.25 #2nd largest percent of population
 
     def __str__(self):
         percentage = Karen.pop_percent * 100
@@ -13,8 +13,17 @@ class Karen(NPC):
     
     #may choose not to follow orders/rules/warnings they believe are useless/stupid
     def _disobey_(self):
-        addFear_by = 1 #increases OTHERS' fear by 1
-        addTrust_by = 0 #neither increases nor decreases fear - fear stays the same
-        addMorale_by = -1 #decreases fear by 1
-        factors = [addFear_by, addTrust_by, addMorale_by] #list stores all variables for conveniency - these variables will be used very often
-        return factors
+        #50% chance they disobey
+        num = random.randint(0, 9)
+
+        if num < 5:
+            addFear_by = 1 #increases fear by 1 for this neighborhood
+            addMorale_by = -1 #decreases fear by 1 for this neighborhood
+            addTrust_by = 0 #neither increases nor decreases fear for this neighborhood - fear stays the same
+            factors = [addFear_by, addTrust_by, addMorale_by] #list stores all variables for conveniency - these variables will be used very often
+            self.atts.change_allfactors(factors) #We are still working on this method call 
+            #because it changes fear/morale/trust only for this NPC object. So, we want to give all NPCs
+            #an instance variable for which neighborhood they are in, which we can use to change fear/morale/trust
+            #for all NPC objects in this neighborhood.
+
+

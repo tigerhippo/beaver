@@ -27,9 +27,11 @@ class NPC:
         self.bag = []
         self.empty_bag()
         #default stats are from the "normal" personality
+        #0 represents Attribute object in NPC class
         self.atts = Attributes(0, 50, 50, 50)
         self.personality = "normal"
-        self.percent = 0.5
+        self.percent = 0.5 #largest percent of population
+        #self.neighborhood = 0
 
     def empty_bag(self):
         self.bag = []
@@ -87,14 +89,30 @@ class NPC:
         return random.choice(self.bag)
 
     def get_data(self):
+        #added atts, personality, and percent data
         player_data = {'player_id': self.id,
                        'state_dead': self.state_dead,
                        'state_zombie': self.state_zombie,
                        'state_flu': self.state_flu,
                        'moving': self.moving,
                        'active': self.active,
-                       'sickly': self.sickly}
+                       'sickly': self.sickly,
+                       'atts': self.atts,
+                       'personality': self.personality,
+                       'percent': self.percent}
         return player_data
+    
+    #added setter
+    def set_atts(self, atts):
+        self.atts = atts
+    
+    #added setter
+    def set_personality(self, personality):
+        self.personality = personality
+    
+    #added setter
+    def set_percent(self, percent):
+        self.percent = percent
 
      #def _shouldDisobeyKaren_(self):
         #generate random number 0 - 9

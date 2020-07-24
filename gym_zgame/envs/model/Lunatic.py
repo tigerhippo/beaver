@@ -15,18 +15,26 @@ class Lunatic(NPC):
 
     #may choose not to follow orders/rules/warnings
     def _disobey_(self):
+        #100% chance of disobeying
         addFear_by = 3 #increases OTHERS' fear by 3
         addTrust_by = 0 #fear stays the same
         addMorale_by = -3 #decreases fear by 3
         factors = [addFear_by, addTrust_by, addMorale_by] #stores variables for conveniency and future usage
-        return factors
+        self.atts.change_allfactors(factors)
     
     #may choose to infect others on purpose due to craziness
-    #def _infectOthers_(self):
+    def _infectOthers_(self):
         #50% chance they can infect others
-        #if they do a random 1% of the population gets infected
+        num = random.randint(0, 9)
 
-        #OTHERS' fear increases
-        #trust stays the same?
-        #morale decreases
-        #lunatic morale increases?
+        #others_infected = False
+        if num < 5:
+            addFear_by = 5
+            addTrust_by = -5
+            addMorale_by = -5
+            factors = [addFear_by, addTrust_by, addMorale_by] 
+            self.atts.change_allfactors(factors)
+            #others_infected = True
+            #necessary to tell another class that 50% of the people in this neighborhood get infected
+
+        #return others_infected
