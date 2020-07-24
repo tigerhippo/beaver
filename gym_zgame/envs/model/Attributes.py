@@ -1,7 +1,6 @@
 
 class Attributes:
-    def __init__(self, group, fear, morale, trust):
-        #idk enums so 0 means npc, 1 means neighborhood, 2 means city, change if u want to
+    def __init__(self, fear, morale, trust):
         self.group = group
         self.fear = fear
         self.morale = morale
@@ -13,6 +12,13 @@ class Attributes:
         return self.fear
     def get_trust(self):
         return self.morale
+
+    def set_fear(self, num):
+        self.fear = num
+    def set_morale(self, num):
+        self.morale = num
+    def set_trust(self, num):
+        self.trust = num
 
     def increment_fear(self, num):
         self.fear += num

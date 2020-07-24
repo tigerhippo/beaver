@@ -19,7 +19,7 @@ class City:
         self.neighborhoods = []
         self._init_neighborhoods(loc_npc_range)
         self._init_neighborhood_threats()
-        self.atts = Attributes(0, 0, 0, 0)
+        self.atts = Attributes(0, 0, 0)
         self.resources = 10
         self.score = 0
         self.total_score = 0
@@ -237,7 +237,19 @@ class City:
                 elif dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
                     resource_cost_per_turn += 1
         return resource_cost_per_turn
-    #FOR NOW ONLY FOR DEPLOYMENTS + PASSIVE PER-TURN INCREASES (will add other sources later)
+
+    def _update_global_states(self):
+        self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
+        if self.resources < 0:
+            self.resources = 0
+            self._destroy_upkeep_deployments()
+        self.update_attributes()
+
+    def _destroy_upkeep_deployments(self):
+        for nbh in self.neighborhoods:
+            nbh.destroy_deployments_by_type(self.UPKEEP_DEPS)
+
+        #FOR NOW ONLY FOR DEPLOYMENTS + PASSIVE PER-TURN INCREASES (will add other sources later)
     @staticmethod
     def update_attributes(self):
         for nbh_index in range(len(self.neighborhoods)):
@@ -278,17 +290,28 @@ class City:
             nbh.raise_total_average_fear(fear_increment)
             nbh.raise_total_average_morale(morale_increment)
             nbh.raise_total_average_trust(trust_increment)
-
-    def _update_global_states(self):
-        self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
-        if self.resources < 0:
-            self.resources = 0
-            self._destroy_upkeep_deployments()
-
-    def _destroy_upkeep_deployments(self):
-        for nbh in self.neighborhoods:
-            nbh.destroy_deployments_by_type(self.UPKEEP_DEPS)
-
+        self.atts.set_fear(calculate_city_fear())
+        self.atts.set_morale(calculate_city_morale())
+        self.atts.set_trust(calculate_city_trust())
+    def _calculate_city_fear(self):
+        total_fear = 0.0
+        for nbh_index in range(len(self.neighborhoods)):
+            nbh = self.neighborhoods[nbh_index]
+            total_fear += nbh.get_atts().get_fear()
+        return total_fear / len(self.neighborhoods)
+    def _calculate_city_morale(self):
+        total_morale = 0.0
+        for nbh_index in range(len(self.neighborhoods)):
+            nbh = self.neighborhoods[nbh_index]
+            total_morale += nbh.get_atts().get_fear()
+        return total_morale / len(self.neighborhoods)
+    def _calculate_city_trust(self):
+        total_trust = 0.0
+        for nbh_index in range(len(self.neighborhoods)):
+            nbh = self.neighborhoods[nbh_index]
+            total_trust += nbh.get_atts().get_fear()
+        return total_trust / len(self.neighborhoods)
+        
     def _update_artificial_states(self,):
         # Some deployments (z cure station, flu vaccine, sniper tower, kiln, and firebomb)
         # Have immediate state changes (aka artificial ones) that happen before the natural ones
