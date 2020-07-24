@@ -1,12 +1,12 @@
-from gym_zgame.envs.model.Personality import Personality
+from gym_zgame.envs.model.NPC import NPC
 #KEEP IN MIND THAT EVERYONE IS REPRESENTED BY ONE INSTANCE - INDIVIDUALS SHOULD BE CONSIDERED AS WELL
 #SOMETHING THAT AN OBJECT DOES CAN CHANGE THEIR OWN FEAR/TRUST/MORALE
-class Nerd(Personality):
-    type_name = "Nerd"
-    pop_percent = 0.05 #5th largest percent of population
-
-    def __init__(self, fear, trust, morale):
-        super().__init__(fear, trust, morale)
+class Nerd(NPC):
+    def __init__(self):
+        super().__init__()
+        self.atts = Attributes(0, 40, 50, 60)
+        self.personality = "nerd"
+        self.percent = 0.05 #5th largest percent of population
 
     def __str__(self):
         percentage = Nerd.pop_percent * 100

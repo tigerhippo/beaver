@@ -1,11 +1,11 @@
-from gym_zgame.envs.model.Personality import Personality
+from gym_zgame.envs.model.NPC import NPC
 
-class Rebel(Personality):
-    type_name = "Rebel"
-    pop_percent = 0.1 #3rd largest percent of population
-
-    def __init__(self, fear, trust, morale):
-        super().__init__(fear, trust, morale)
+class Rebel(NPC):
+    def __init__(self):
+        super().__init__()
+        super.atts = Attributes(50, 50, 40)
+        self.personality = "rebel"
+        self.percent = 0.1 #3rd largest percent of population
 
     def __str__(self):
         percentage = Rebel.pop_percent * 100

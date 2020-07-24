@@ -1,13 +1,13 @@
-from gym_zgame.envs.model.Personality import Personality
+from gym_zgame.envs.model.NPC import NPC
 #SHOULD TRUST DECREASE HERE NECESSARILY
 #HOW TO DECIDE WHEN TO CHANGE FEAR/TRUST/MORALE AND HOW MUCH TO CHANGE IT
 #HOW TO DECIDE WHAT THE STARTING LEVELS ARE AND HOW THE OBJECT THEMSELVES ARE IMPACTED
-class Lunatic(Personality):
-    type_name = "Lunatic"
-    pop_percent = 0.01 #6th largest percent of population
-
-    def __init__(self, fear, trust, morale):
-        super().__init__(fear, trust, morale)
+class Lunatic(NPC):
+    def __init__(self):
+        super().__init__()
+        self.atts = Attributes(0, 20, 80, 40)
+        self.personality = "lunatic"
+        self.percent = 0.01 #6th largest percent of population
 
     def __str__(self):
         percentage = Lunatic.pop_percent * 100

@@ -10,6 +10,7 @@ class Neighborhood:
         self.id = id
         self.location = location
         self.NPCs = []
+        self.breakdown = {"normal":0, "karen":0, "nerd":0, "lunatic":0, "rebel":0, "coward":0}
         self.adj_locations = adj_locations
         self._npc_init(num_init_npcs)
         self.deployments = []
@@ -32,7 +33,7 @@ class Neighborhood:
         self.num_sickly = 0
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
-        self.atts = Attributes(0, 0, 0, 0)
+        self.atts = Attributes(1, 0, 0, 0)
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):

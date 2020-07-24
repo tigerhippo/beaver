@@ -1,11 +1,11 @@
-from gym_zgame.envs.model.Personality import Personality
+from gym_zgame.envs.model.NPC import NPC
 #subclass - for people with Karen personality
-class Karen(Personality):
-    type_name = "Karen"
-    pop_percent = 0.25 #2nd largest percent of population
-
-    def __init__(self, fear, trust, morale):
-        super().__init__(fear, trust, morale)
+class Karen(NPC):
+    def __init__(self):
+        super().__init__()
+        self.atts = Attributes(0, 50, 50, 50)
+        self.personality = "karen"
+        self.percent = 0.25
 
     def __str__(self):
         percentage = Karen.pop_percent * 100

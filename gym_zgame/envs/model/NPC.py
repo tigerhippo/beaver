@@ -7,7 +7,7 @@ from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS
 #may place code from Simulate class into NPC class to connect personality classes with the actual representation of the people
 class NPC:
 
-    #normal = Normal()
+    #normal = this class
     #karen = Karen()
     #nerd = Nerd()
     #lunatic = Lunatic()
@@ -26,11 +26,13 @@ class NPC:
         self.update_states()
         self.bag = []
         self.empty_bag()
-        self.atts = Attributes(0, 0, 0, 0)
+        #default stats are from the "normal" personality
+        self.atts = Attributes(0, 50, 50, 50)
+        self.personality = "normal"
+        self.percent = 0.5
 
     def empty_bag(self):
         self.bag = []
-
     def set_init_bag_alive(self):
         for _ in range(6):
             self.bag.append(NPC_ACTIONS.STAY)
@@ -38,7 +40,6 @@ class NPC:
         self.bag.append(NPC_ACTIONS.S)
         self.bag.append(NPC_ACTIONS.E)
         self.bag.append(NPC_ACTIONS.W)
-
     def clean_bag(self, location):
         # Build list of things that shouldn't be in the bag
         actions_to_remove = []
@@ -61,30 +62,25 @@ class NPC:
         # Clear the bad things out of the bag
         fresh_bag = [action for action in self.bag if action not in actions_to_remove]
         self.bag = fresh_bag
+    def add_to_bag(self, npc_action):
+        self.bag.append(npc_action)
+    def remove_from_bag(self, npc_action):
+        self.bag.remove(npc_action)
 
     def update_states(self):
         self.moving = self.state_dead is NPC_STATES_DEAD.ALIVE
         self.active = self.moving and (self.state_zombie is NPC_STATES_ZOMBIE.HUMAN) and (
                     self.state_flu is not NPC_STATES_FLU.FLU)
         self.sickly = self.moving and not self.active and (self.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE)
-
     def change_dead_state(self, npc_states_dead):
         self.state_dead = npc_states_dead
         self.update_states()
-
     def change_zombie_state(self, npc_states_zombie):
         self.state_zombie = npc_states_zombie
         self.update_states()
-
     def change_flu_state(self, npc_states_flu):
         self.state_flu = npc_states_flu
         self.update_states()
-
-    def add_to_bag(self, npc_action):
-        self.bag.append(npc_action)
-
-    def remove_from_bag(self, npc_action):
-        self.bag.remove(npc_action)
 
     def selection(self):
         #self.clean_bag()

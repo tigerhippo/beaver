@@ -1,11 +1,11 @@
-from gym_zgame.envs.model.Personality import Personality
+from gym_zgame.envs.model.NPC import NPC
 
-class Coward(Personality):
-    type_name = "Coward"
-    pop_percent = 0.09 #4th largest percent of population
-
-    def __init__(self, fear, trust, morale):
-        super().__init__(fear, trust, morale)
+class Coward(NPC):
+    def __init__(self):
+        super().__init__()
+        self.atts = Attributes(0, 60, 50, 50)
+        self.personality = "coward"
+        self.percent = 0.09 #4th largest percent of population
 
     def __str__(self):
         percentage = Coward.pop_percent * 100
