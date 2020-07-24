@@ -149,6 +149,11 @@ class NPC:
     def increment_trust(self, increment):
         self.trust += increment
 
+    def increment_allfactors(self, list):
+        self.fear += list[0]
+        self.morale += list[1]
+        self.trust += list[2]
+
     def get_personality(self):
         return personality
 
