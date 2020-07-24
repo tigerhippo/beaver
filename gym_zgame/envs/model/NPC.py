@@ -149,6 +149,9 @@ class NPC:
     def increment_trust(self, increment):
         self.trust += increment
 
+    def get_personality(self):
+        return personality
+
 if __name__ == '__main__':
     pers = NPC()
     pers.add_to_bag(NPC_ACTIONS.STAY)
