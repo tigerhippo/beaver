@@ -9,6 +9,7 @@ from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS, DEPLOYMENTS
 from gym_zgame.envs.enums.LEVELS import LEVELS
 from gym_zgame.envs.enums.NPC_STATES import NPC_STATES_DEAD, NPC_STATES_ZOMBIE, NPC_STATES_FLU
 from gym_zgame.envs.enums.NPC_ACTIONS import NPC_ACTIONS
+from gym_zgame.envs.model.Attributes import Attributes
 
 
 class City:
@@ -199,7 +200,6 @@ class City:
         self.score = score
         self.total_score += score
         self.resources += 1
-        self.fear -= 1 if self.fear > 0 else 0
         self.turn += 1
         return score, done
 
@@ -347,7 +347,7 @@ class City:
 
     def _art_trans_flu_vaccine_free(self, nbh_index):
         nbh = self.neighborhoods[nbh_index]
-        vaccine_success = max(0, 0.2 - (0.01 * self.fear))
+        vaccine_success = max(0, 0.2 - (0.01 * self.atts.get_fear()))
         for npc in nbh.NPCs:
             if (npc.state_flu is not NPC_STATES_FLU.IMMUNE) and (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE):
                 if random.random() <= vaccine_success:
@@ -826,7 +826,7 @@ class City:
         zombie_weight = 2.0
         score = (self.num_active * active_weight) + \
                 (self.num_sickly * sickly_weight) - \
-                (self.fear * fear_weight) - \
+                (self.atts.get_fear() * fear_weight) - \
                 (self.num_zombie * zombie_weight)
         scaled_score = np.floor((score + 800) / 100)  # scaled to fit env state space range
         return scaled_score
@@ -834,7 +834,9 @@ class City:
     def get_data(self):
         self.update_summary_stats()
         city_data = {'score': self.get_score(),
-                     'fear': self.fear,
+                     'fear': self.atts.get_fear(),
+                     'morale': self.atts.get_morale(),
+                     'trust': self.atts.get_trust(),
                      'resources': self.resources,
                      'num_npcs': self.num_npcs,
                      'num_alive': self.num_alive,
@@ -856,9 +858,9 @@ class City:
 
     def _mask_visible_data(self, value):
         # Don't report out (to user and in state) the actual values, instead, bin them into none, few, and many
-        if value < self.fear:  # [0, fear] inclusive, also, handles negative values (which shouldn't happen)
+        if value < self.atts.get_fear():  # [0, fear] inclusive, also, handles negative values (which shouldn't happen)
             return LEVELS.NONE
-        elif value < (self.num_npcs * 0.5) + self.fear:  # [fear + 1, half population + fear]
+        elif value < (self.num_npcs * 0.5) + self.atts.get_fear():  # [fear + 1, half population + fear]
             return LEVELS.FEW
         else:  # else [half population + fear + 1, total population], also handles values that are too large
             return LEVELS.MANY
@@ -868,7 +870,7 @@ class City:
         state = np.zeros(shape=(10, 6 + (self.max_turns * 2)), dtype='uint8')
 
         # Set the state information for the global state
-        state[0, 0] = int(self.fear)  # Global Fear
+        state[0, 0] = int(self.atts.get_fear())  # Global Fear
         state[0, 1] = int(self.resources)  # Global Resources
         state[0, 2] = int(self.turn)  # Turn number
         state[0, 3] = int(self.orig_alive)  # Original number alive
@@ -921,7 +923,7 @@ class City:
         # Include global stats
         global_stats = PBack.purple + '#####################################  GLOBAL STATUS  ######################################' + PBack.reset + '\n'
         global_stats += ' Turn: {0} of {1}'.format(self.turn, self.max_turns).ljust(42) + 'Turn Score: {0} (Total Score: {1})'.format(self.get_score(), self.total_score) + '\n'
-        global_stats += ' Fear: {}'.format(self.fear).ljust(42) + 'Living at Start: {}'.format(self.orig_alive) + '\n'
+        global_stats += ' Fear: {}'.format(self.atts.get_fear()).ljust(42) + 'Living at Start: {}'.format(self.orig_alive) + '\n'
         global_stats += ' Resources: {}'.format(self.resources).ljust(42) + 'Dead at Start: {}'.format(self.orig_dead) + '\n'
         global_stats += PBack.purple + '############################################################################################' + PBack.reset + '\n'
         fancy_string += global_stats

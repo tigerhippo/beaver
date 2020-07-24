@@ -2,6 +2,7 @@ import random
 from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS, DEPLOYMENTS
 from gym_zgame.envs.enums.NPC_STATES import NPC_STATES_DEAD, NPC_STATES_ZOMBIE, NPC_STATES_FLU
 from gym_zgame.envs.model.NPC import NPC
+from gym_zgame.envs.model.Attributes import Attributes
 
 
 class Neighborhood:

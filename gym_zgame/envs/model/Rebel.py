@@ -1,4 +1,5 @@
 from gym_zgame.envs.model.NPC import NPC
+from gym_zgame.envs.model.Attributes import Attributes
 
 class Rebel(NPC):
     def __init__(self):
