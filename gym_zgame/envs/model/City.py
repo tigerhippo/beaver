@@ -196,12 +196,9 @@ class City:
         # Update state info
         done = self.check_done()
         self.update_summary_stats()
-        score = self.get_score()
-        self.score = score
-        self.total_score += score
         self.resources += 1
         self.turn += 1
-        return score, done
+        return done
 
     def _add_buildings_to_locations(self, nbh_1_index, dep_1, nbh_2_index, dep_2):
         # Update the list of deployments at that location
@@ -818,23 +815,9 @@ class City:
     def check_done(self):
         return self.turn >= self.max_turns
 
-    def get_score(self):
-        self.update_summary_stats()
-        active_weight = 1.0
-        sickly_weight = 0.5
-        fear_weight = 1.0
-        zombie_weight = 2.0
-        score = (self.num_active * active_weight) + \
-                (self.num_sickly * sickly_weight) - \
-                (self.atts.get_fear() * fear_weight) - \
-                (self.num_zombie * zombie_weight)
-        scaled_score = np.floor((score + 800) / 100)  # scaled to fit env state space range
-        return scaled_score
-
     def get_data(self):
         self.update_summary_stats()
-        city_data = {'score': self.get_score(),
-                     'fear': self.atts.get_fear(),
+        city_data = {'fear': self.atts.get_fear(),
                      'morale': self.atts.get_morale(),
                      'trust': self.atts.get_trust(),
                      'resources': self.resources,
@@ -922,9 +905,9 @@ class City:
 
         # Include global stats
         global_stats = PBack.purple + '#####################################  GLOBAL STATUS  ######################################' + PBack.reset + '\n'
-        global_stats += ' Turn: {0} of {1}'.format(self.turn, self.max_turns).ljust(42) + 'Turn Score: {0} (Total Score: {1})'.format(self.get_score(), self.total_score) + '\n'
-        global_stats += ' Fear: {}'.format(self.atts.get_fear()).ljust(42) + 'Living at Start: {}'.format(self.orig_alive) + '\n'
-        global_stats += ' Resources: {}'.format(self.resources).ljust(42) + 'Dead at Start: {}'.format(self.orig_dead) + '\n'
+        global_stats += ' Turn: {0} of {1}'.format(self.turn, self.max_turns).ljust(42) +'\n'
+        global_stats += ' Global Fear: {}'.format(self.atts.get_fear()).ljust(42) + ' Morale: {}'.format(self.atts.get_morale()).ljust(42) + ' Trust: {}'.format(self.atts.get_trust()).ljust(42) + '\n'
+        global_stats += ' Resources: {}'.format(self.resources).ljust(42) + 'Dead at Start: {}'.format(self.orig_dead) + 'Living at Start: {}'.format(self.orig_alive) + '\n'
         global_stats += PBack.purple + '############################################################################################' + PBack.reset + '\n'
         fancy_string += global_stats
 
