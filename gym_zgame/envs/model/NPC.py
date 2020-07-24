@@ -28,7 +28,9 @@ class NPC:
         self.bag = []
         self.empty_bag()
         #default stats are from the "normal" personality
-        self.atts = Attributes(0, 50, 50, 50)
+        self.fear = 50
+        self.trust = 50
+        self.morale = 50
         self.personality = "normal"
         self.percent = 0.5
 
@@ -126,8 +128,26 @@ class NPC:
             #set trust for object
             #set morale for object
             
-def get_attributes(self):
-    return atts
+    def get_fear(self):
+        return self.fear 
+    def get_morale(self):
+        return self.morale 
+    def get_trust(self):
+        return self.trust
+    
+    def set_fear(self, num):
+        self.fear = num
+    def set_morale(self, num):
+        self.morale = num
+    def set_trust(self, num):
+        self.trust = num
+
+    def increment_fear(self, increment):
+        self.fear += increment
+    def increment_morale(self, increment):
+        self.morale += increment
+    def increment_trust(self, increment):
+        self.trust += increment
 
 if __name__ == '__main__':
     pers = NPC()

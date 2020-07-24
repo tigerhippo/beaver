@@ -10,6 +10,7 @@ class Neighborhood:
     def __init__(self, id, location, adj_locations, num_init_npcs):
         self.id = id
         self.location = location
+        #tracks NPCs and how many NPCs are in each personality category
         self.NPCs = []
         self.breakdown = {"normal":0, "karen":0, "nerd":0, "lunatic":0, "rebel":0, "coward":0}
         self.adj_locations = adj_locations
@@ -34,23 +35,32 @@ class Neighborhood:
         self.num_sickly = 0
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
-        self.atts = Attributes(1, 0, 0, 0)
+        #calculated by averaging the attributes of all residents in the neighborhood
+        self.fear = 0
+        self.morale = 0
+        self.trust = 0
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
             personality = random()
             if(personality <= 0.49):
                 npc = NPC()
+                self.breakdown["normal"] += 1
             elif(personality <= 0.74):
                 npc = Karen()
+                self.breakdown["karen"] += 1
             elif(personality <= 0.84):
                 npc = Rebel()
+                self.breakdown["rebel"] += 1
             elif(personality <= 0.93):
                 npc = Coward()
+                self.breakdown["coward"] += 1
             elif(personality <= 0.98):
                 npc = Nerd()
+                self.breakdown["nerd"] += 1
             else:
                 npc = Lunatic()
+                self.breakdown["lunatic"] += 1
             zombie_chance = random.uniform(0, 1)
             flu_chance = random.uniform(0, 1)
             if zombie_chance >= 0.9:
@@ -66,9 +76,6 @@ class Neighborhood:
         og_alive += self.num_alive
         og_dead += self.num_dead
         return og_alive, og_dead
-    
-    def get_attributes(self):
-        return atts
 
     def compute_baseline_trans_probs(self):
         self.update_summary_stats()
@@ -92,11 +99,9 @@ class Neighborhood:
     def add_NPC(self, NPC):
         self.NPCs.append(NPC)
         self.update_summary_stats()
-
     def add_NPCs(self, NPCs):
         self.NPCs.extend(NPCs)
         self.update_summary_stats()
-
     def remove_NPC(self, NPC):
         if NPC in self.NPCs:
             self.NPCs.remove(NPC)
@@ -118,15 +123,16 @@ class Neighborhood:
     def destroy_deployments_by_type(self, dep_types):
         self.deployments = [dep for dep in self.deployments if dep not in dep_types]
 
+    #raises the entire neighborhood average by adding the intended average increase to each person in the neighborhood
     def raise_total_average_fear(self, increment):
         for person in NPCs:
-            person.get_attributes().increment_fear(increment)
+            person.getfear().increment_fear(increment)
     def raise_total_average_morale(self, increment):
         for person in NPCs:
-            person.get_attributes().increment_morale(increment)
+            person.get_morale().increment_morale(increment)
     def raise_total_average_trust(self, increment):
         for person in NPCs:
-            person.get_attributes().increment_trust(increment)
+            person.get_trust().increment_trust(increment)
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)
@@ -196,6 +202,9 @@ class Neighborhood:
         self.update_summary_stats()
         neighborhood_data = {'id': self.id,
                              'location': self.location,
+                             'fear': self.fear,
+                             'morale': self.morale,
+                             'trust': self.trust,
                              'num_npcs': self.num_npcs,
                              'num_alive': self.num_alive,
                              'num_dead': self.num_dead,

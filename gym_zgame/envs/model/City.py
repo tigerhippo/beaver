@@ -9,7 +9,6 @@ from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS, DEPLOYMENTS
 from gym_zgame.envs.enums.LEVELS import LEVELS
 from gym_zgame.envs.enums.NPC_STATES import NPC_STATES_DEAD, NPC_STATES_ZOMBIE, NPC_STATES_FLU
 from gym_zgame.envs.enums.NPC_ACTIONS import NPC_ACTIONS
-from gym_zgame.envs.model.Attributes import Attributes
 
 
 class City:
@@ -19,13 +18,15 @@ class City:
         self.neighborhoods = []
         self._init_neighborhoods(loc_npc_range)
         self._init_neighborhood_threats()
-        self.atts = Attributes(0, 0, 0)
         self.resources = 10
         self.score = 0
         self.total_score = 0
         self.turn = 0
         self.max_turns = 14  # each turn represents one day
-        # Computed
+        #calculated by averaging all the attribute values of all the neighborhoods
+        self.fear = 0
+        self.morale = 0
+        self.trust = 0
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
         # CONSTANTS
         self.UPKEEP_DEPS = [DEPLOYMENTS.Z_CURE_CENTER_EXP, DEPLOYMENTS.Z_CURE_CENTER_FDA,
@@ -249,7 +250,7 @@ class City:
         for nbh in self.neighborhoods:
             nbh.destroy_deployments_by_type(self.UPKEEP_DEPS)
 
-        #FOR NOW ONLY FOR DEPLOYMENTS + PASSIVE PER-TURN INCREASES (will add other sources later)
+    #FOR NOW ONLY FOR DEPLOYMENTS + PASSIVE PER-TURN INCREASES (will add other sources later)
     @staticmethod
     def update_attributes(self):
         for nbh_index in range(len(self.neighborhoods)):
@@ -290,26 +291,26 @@ class City:
             nbh.raise_total_average_fear(fear_increment)
             nbh.raise_total_average_morale(morale_increment)
             nbh.raise_total_average_trust(trust_increment)
-        self.atts.set_fear(calculate_city_fear())
-        self.atts.set_morale(calculate_city_morale())
-        self.atts.set_trust(calculate_city_trust())
+        self.fear = calculate_city_fear()
+        self.morale = calculate_city_morale()
+        self.trust = calculate_city_trust()
     def _calculate_city_fear(self):
         total_fear = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
-            total_fear += nbh.get_atts().get_fear()
+            total_fear += nbh.get_fear()
         return total_fear / len(self.neighborhoods)
     def _calculate_city_morale(self):
         total_morale = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
-            total_morale += nbh.get_atts().get_fear()
+            total_morale += nbh.get_morale()
         return total_morale / len(self.neighborhoods)
     def _calculate_city_trust(self):
         total_trust = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
-            total_trust += nbh.get_atts().get_fear()
+            total_trust += nbh.get_trust()
         return total_trust / len(self.neighborhoods)
         
     def _update_artificial_states(self,):
@@ -367,7 +368,7 @@ class City:
 
     def _art_trans_flu_vaccine_free(self, nbh_index):
         nbh = self.neighborhoods[nbh_index]
-        vaccine_success = max(0, 0.2 - (0.01 * self.atts.get_fear()))
+        vaccine_success = max(0, 0.2 - (0.01 * self.fear))
         for npc in nbh.NPCs:
             if (npc.state_flu is not NPC_STATES_FLU.IMMUNE) and (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE):
                 if random.random() <= vaccine_success:
@@ -840,9 +841,9 @@ class City:
 
     def get_data(self):
         self.update_summary_stats()
-        city_data = {'fear': self.atts.get_fear(),
-                     'morale': self.atts.get_morale(),
-                     'trust': self.atts.get_trust(),
+        city_data = {'fear': self.fear,
+                     'morale': self.morale,
+                     'trust': self.trust,
                      'resources': self.resources,
                      'num_npcs': self.num_npcs,
                      'num_alive': self.num_alive,
@@ -864,9 +865,9 @@ class City:
 
     def _mask_visible_data(self, value):
         # Don't report out (to user and in state) the actual values, instead, bin them into none, few, and many
-        if value < self.atts.get_fear():  # [0, fear] inclusive, also, handles negative values (which shouldn't happen)
+        if value < self.fear:  # [0, fear] inclusive, also, handles negative values (which shouldn't happen)
             return LEVELS.NONE
-        elif value < (self.num_npcs * 0.5) + self.atts.get_fear():  # [fear + 1, half population + fear]
+        elif value < (self.num_npcs * 0.5) + self.fear:  # [fear + 1, half population + fear]
             return LEVELS.FEW
         else:  # else [half population + fear + 1, total population], also handles values that are too large
             return LEVELS.MANY
@@ -876,7 +877,7 @@ class City:
         state = np.zeros(shape=(10, 6 + (self.max_turns * 2)), dtype='uint8')
 
         # Set the state information for the global state
-        state[0, 0] = int(self.atts.get_fear())  # Global Fear
+        state[0, 0] = int(self.fear)  # Global Fear
         state[0, 1] = int(self.resources)  # Global Resources
         state[0, 2] = int(self.turn)  # Turn number
         state[0, 3] = int(self.orig_alive)  # Original number alive
@@ -929,7 +930,7 @@ class City:
         # Include global stats
         global_stats = PBack.purple + '#####################################  GLOBAL STATUS  ######################################' + PBack.reset + '\n'
         global_stats += ' Turn: {0} of {1}'.format(self.turn, self.max_turns).ljust(42) +'\n'
-        global_stats += ' Global Fear: {}'.format(self.atts.get_fear()).ljust(42) + ' Morale: {}'.format(self.atts.get_morale()).ljust(42) + ' Trust: {}'.format(self.atts.get_trust()).ljust(42) + '\n'
+        global_stats += ' Global Fear: {}'.format(self.fear).ljust(42) + ' Morale: {}'.format(self.morale).ljust(42) + ' Trust: {}'.format(self.trust).ljust(42) + '\n'
         global_stats += ' Resources: {}'.format(self.resources).ljust(42) + 'Dead at Start: {}'.format(self.orig_dead) + 'Living at Start: {}'.format(self.orig_alive) + '\n'
         global_stats += PBack.purple + '############################################################################################' + PBack.reset + '\n'
         fancy_string += global_stats

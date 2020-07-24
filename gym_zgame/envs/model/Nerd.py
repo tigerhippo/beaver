@@ -5,9 +5,11 @@ from gym_zgame.envs.model.Attributes import Attributes
 class Nerd(NPC):
     def __init__(self):
         super().__init__()
-        self.atts = Attributes(0, 40, 50, 60)
+        self.fear = 40
+        self.morale = 50
+        self.trust = 60
         self.personality = "nerd"
-        self.percent = 0.05 #5th largest percent of population
+        # self.percent = 0.05 5th largest percent of population
 
     def __str__(self):
         percentage = Nerd.pop_percent * 100
