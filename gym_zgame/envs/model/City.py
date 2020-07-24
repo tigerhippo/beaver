@@ -19,10 +19,7 @@ class City:
         self._init_neighborhoods(loc_npc_range)
         self._init_neighborhood_threats()
         self.atts = Attributes(0, 0, 0, 0)
-        self.fear = 0
         self.resources = 10
-        self.delta_fear = 0
-        self.delta_resources = 0
         self.score = 0
         self.total_score = 0
         self.turn = 0
@@ -217,56 +214,76 @@ class City:
         self._update_artificial_states()
         self._update_natural_states()
 
-    def _update_trackers(self):
-        # Update fear and resources increments
-        fear_cost_per_turn = 0
+    @staticmethod
+    def determine_increment_resources(self):
+        # Update resource increments
         resource_cost_per_turn = 0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
             for dep in nbh.deployments:
                 # deployments not included do not have fear or resources costs
-                if dep is DEPLOYMENTS.QUARANTINE_FENCED:
-                    fear_cost_per_turn += 1
-                elif dep is DEPLOYMENTS.BITE_CENTER_AMPUTATE:
-                    fear_cost_per_turn += 1
-                elif dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
+                if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
                     resource_cost_per_turn += 1
                 elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
-                    fear_cost_per_turn += 1
                     resource_cost_per_turn += 1
                 elif dep is DEPLOYMENTS.FLU_VACCINE_MAN:
-                    fear_cost_per_turn += 1
                     resource_cost_per_turn += 1
-                elif dep is DEPLOYMENTS.BROADCAST_DONT_PANIC:
-                    fear_cost_per_turn += -1
-                elif dep is DEPLOYMENTS.BROADCAST_CALL_TO_ARMS:
-                    fear_cost_per_turn += 1
-                elif dep is DEPLOYMENTS.SNIPER_TOWER_FREE:
-                    fear_cost_per_turn += 1
                 elif dep is DEPLOYMENTS.PHEROMONES_MEAT:
-                    fear_cost_per_turn += 1
                     resource_cost_per_turn += 1
                 elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
                     if nbh.num_active >= 5:
                         resource_cost_per_turn -= 1
                 elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
                     resource_cost_per_turn -= 2
-                elif dep is DEPLOYMENTS.RALLY_POINT_FULL:
-                    fear_cost_per_turn += 1
-                elif dep is DEPLOYMENTS.FIREBOMB_PRIMED:
-                    fear_cost_per_turn += 1
                 elif dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
-                    fear_cost_per_turn += 10
                     resource_cost_per_turn += 1
                 elif dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
-                    fear_cost_per_turn += 1
                     resource_cost_per_turn += 1
-        self.delta_fear = fear_cost_per_turn
-        self.delta_resources = resource_cost_per_turn
+        return resource_cost_per_turn
+    #FOR NOW ONLY FOR DEPLOYMENTS + PASSIVE PER-TURN INCREASES (will add other sources later)
+    @staticmethod
+    def update_attributes(self):
+        for nbh_index in range(len(self.neighborhoods)):
+            nbh = self.neighborhoods[nbh_index]
+            fear_increment = 0
+            morale_increment = 0
+            trust_increment = 0
+            for dep in nbh.deployments:
+                if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
+                    fear_increment += 5
+                #just wanted to get basic structure down for now
+            #passive increment for every turn
+            if(nbh.get_data()["num_zombie"] > nbh.get_data()["num.alive"] / 2): #we can change threshold later
+                fear_increment += 10
+                morale_increment -= 10
+                trust_increment -= 5
+            else:
+                fear_increment -= 10
+                morale_increment += 5
+                trust_increment += 1
+            if(nbh.get_data()["num_flu"] > nbh.get_data()["num.alive"] / 2):
+                fear_increment += 5
+                morale_increment -= 5
+                trust_increment -= 2
+            else:
+                fear_increment -= 5
+                morale_increment += 2
+                trust_increment += 1
+            if(nbh.get_data()["num_dead"] + nbh.get_data()["num_ashen"] > nbh.get_data()["num.alive"]):
+                fear_increment += 10
+                morale_increment -= 10
+                trust_increment -= 5
+            else:
+                fear_increment -= 10
+                morale_increment += 5
+                trust_increment += 1
+            #adds the increments to all the members in a neighborhood
+            nbh.raise_total_average_fear(fear_increment)
+            nbh.raise_total_average_morale(morale_increment)
+            nbh.raise_total_average_trust(trust_increment)
 
     def _update_global_states(self):
-        self.resources -= self.delta_resources  # remove upkeep resources (includes new deployments)
-        self.fear += self.delta_fear  # increase fear from deployments (includes new deployments)
+        self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
         if self.resources < 0:
             self.resources = 0
             self._destroy_upkeep_deployments()

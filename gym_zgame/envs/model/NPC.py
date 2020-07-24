@@ -124,7 +124,9 @@ class NPC:
             #set fear for object
             #set trust for object
             #set morale for object
-
+            
+def get_attributes(self):
+    return atts
 
 if __name__ == '__main__':
     pers = NPC()

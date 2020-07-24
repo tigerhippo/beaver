@@ -14,9 +14,9 @@ class Attributes:
     def get_trust(self):
         return self.morale
 
-    def set_fear(self, num):
-        self.fear = num
-    def set_morale(self, num):
-        self.morale = num    
-    def set_trust(self, num):
-        self.trust = num
+    def increment_fear(self, num):
+        self.fear += num
+    def increment_morale(self, num):
+        self.morale += num    
+    def increment_trust(self, num):
+        self.trust += num

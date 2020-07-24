@@ -53,6 +53,9 @@ class Neighborhood:
         og_alive += self.num_alive
         og_dead += self.num_dead
         return og_alive, og_dead
+    
+    def get_attributes(self):
+        return atts
 
     def compute_baseline_trans_probs(self):
         self.update_summary_stats()
@@ -87,7 +90,6 @@ class Neighborhood:
             self.update_summary_stats()
         else:
             print('WARNING: Attempted to remove NPC that did not exist in neighborhood')
-
     def remove_NPCs(self, NPCs):
         for NPC in NPCs:
             self.remove_NPC(NPC)
@@ -98,12 +100,20 @@ class Neighborhood:
 
     def add_deployment(self, deployment):
         self.deployments.append(deployment)
-
     def add_deployments(self, deployments):
         self.deployments.extend(deployments)
-
     def destroy_deployments_by_type(self, dep_types):
         self.deployments = [dep for dep in self.deployments if dep not in dep_types]
+
+    def raise_total_average_fear(self, increment):
+        for person in NPCs:
+            person.get_attributes().increment_fear(increment)
+    def raise_total_average_morale(self, increment):
+        for person in NPCs:
+            person.get_attributes().increment_morale(increment)
+    def raise_total_average_trust(self, increment):
+        for person in NPCs:
+            person.get_attributes().increment_trust(increment)
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)
