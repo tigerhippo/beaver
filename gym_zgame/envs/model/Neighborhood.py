@@ -38,7 +38,19 @@ class Neighborhood:
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
-            npc = NPC()
+            personality = random()
+            if(personality <= 0.49):
+                npc = NPC()
+            elif(personality <= 0.74):
+                npc = Karen()
+            elif(personality <= 0.84):
+                npc = Rebel()
+            elif(personality <= 0.93):
+                npc = Coward()
+            elif(personality <= 0.98):
+                npc = Nerd()
+            else:
+                npc = Lunatic()
             zombie_chance = random.uniform(0, 1)
             flu_chance = random.uniform(0, 1)
             if zombie_chance >= 0.9:

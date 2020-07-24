@@ -14,7 +14,7 @@ from gym_zgame.envs.model.Attributes import Attributes
 
 class City:
 
-    def __init__(self, loc_npc_range=(9, 15)):
+    def __init__(self, loc_npc_range=(10, 20)):
         # Main parameters
         self.neighborhoods = []
         self._init_neighborhoods(loc_npc_range)
