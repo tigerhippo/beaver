@@ -3,9 +3,12 @@ from gym_zgame.envs.model.NPC import NPC
 class Karen(NPC):
     def __init__(self):
         super().__init__()
-        self.atts = Attributes(0, 50, 50, 50)
         self.personality = "karen"
+<<<<<<< HEAD
         self.percent = 0.25 #2nd largest percent of population
+=======
+        # self.percent = 0.25
+>>>>>>> 99c1f134a7ce53624ded4868e3db774d58f3ce81
 
     def __str__(self):
         percentage = Karen.pop_percent * 100
