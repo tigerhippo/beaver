@@ -41,19 +41,19 @@ class Neighborhood:
         init_npcs = []
         for _ in range(num_npcs):
             personality = random.randrange(0, 1)
-            if(personality <= 0.49):
+            if(personality < 0.5):
                 npc = NPC()
                 self.breakdown["normal"] += 1
-            elif(personality <= 0.74):
+            elif(personality < 0.75):
                 npc = Karen()
                 self.breakdown["karen"] += 1
-            elif(personality <= 0.84):
+            elif(personality < 0.85):
                 npc = Rebel()
                 self.breakdown["rebel"] += 1
-            elif(personality <= 0.93):
+            elif(personality < 0.94):
                 npc = Coward()
                 self.breakdown["coward"] += 1
-            elif(personality <= 0.98):
+            elif(personality < 0.99):
                 npc = Nerd()
                 self.breakdown["nerd"] += 1
             else:

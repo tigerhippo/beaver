@@ -155,6 +155,22 @@ class NPC:
 
     def get_personality(self):
         return personality
+    
+    #checks to make sure all the NPC's attributes are in the desired range, fixes them if not
+    def check_attribute_bounds(self):
+        if self.fear < 0:
+            self.fear = 0
+        elif self.fear > 100:
+            self.fear = 100
+        if self.morale < 0:
+            self.morale = 0
+        elif self.morale > 100:
+            self.morale = 100
+        if self.trust < 0:
+            self.trust = 0
+        elif self.trust > 100:
+            self.trust = 100
+
 
 if __name__ == '__main__':
     pers = NPC()

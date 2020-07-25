@@ -127,6 +127,9 @@ class City:
         return og_alive, og_dead
 
     def update_summary_stats(self):
+        fear = 0
+        morale = 0
+        trust = 0
         num_npcs = 0
         num_alive = 0
         num_dead = 0
@@ -144,6 +147,9 @@ class City:
 
         for nbh in self.neighborhoods:
             nbh_stats = nbh.get_data()
+            fear += nbh_stats.get('fear', 0)
+            morale += nbh_stats.get('morale', 0)
+            trust += nbh_stats.get('trust', 0)
             num_npcs += nbh_stats.get('num_npcs', 0)
             num_alive += nbh_stats.get('num_alive', 0)
             num_dead += nbh_stats.get('num_dead', 0)
@@ -159,6 +165,9 @@ class City:
             num_active += nbh_stats.get('num_active', 0)
             num_sickly += nbh_stats.get('num_sickly', 0)
 
+        self.fear = fear
+        self.morale = morale
+        self.trust = trust
         self.num_npcs = num_npcs
         self.num_alive = num_alive
         self.num_dead = num_dead
@@ -217,26 +226,48 @@ class City:
         resource_cost_per_turn = 0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
+            nbh_cost = 0
             for dep in nbh.deployments:
                 # deployments not included do not have fear or resources costs
                 if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
-                    resource_cost_per_turn += 1
+                    nbh_cost += 1
                 elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
-                    resource_cost_per_turn += 1
+                    nbh_cost += 1
                 elif dep is DEPLOYMENTS.FLU_VACCINE_MAN:
-                    resource_cost_per_turn += 1
+                    nbh_cost += 1
                 elif dep is DEPLOYMENTS.PHEROMONES_MEAT:
-                    resource_cost_per_turn += 1
+                    nbh_cost += 1
                 elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
                     if nbh.num_active >= 5:
-                        resource_cost_per_turn -= 1
+                        nbh_cost -= 1
                 elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
-                    resource_cost_per_turn -= 2
+                    nbh_cost -= 2
                 elif dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
-                    resource_cost_per_turn += 1
+                    nbh_cost += 1
                 elif dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
-                    resource_cost_per_turn += 1
+                    nbh_cost += 1
+            #applies the morale or high fear resource increase/decrease
+            nbh_cost *= determine_resource_discount(self, nbh, nbh_cost)
+            resource_cost_per_turn += nbh_cost
         return resource_cost_per_turn
+    
+    @staticmethod
+    def determine_resource_discount(self, nbh, og_cost):
+        #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
+        discount = 0.0
+        if nbh.get_fear() > 80:
+            discount *= 1.5
+        elif nbh.get_fear() > 60:
+            discount *= 1.25
+        if nbh.get_morale() > 80:
+            discount *= 0.5
+        elif nbh.get_morale() > 60:
+            discount *= 0.75
+        elif nbh.get_morale() < 20:
+            discount *= 1.5
+        elif nbh.get_morale() < 40:
+            discount += 1.25
+        return discount
 
     def _update_global_states(self):
         self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
