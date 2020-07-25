@@ -2,8 +2,6 @@ import random
 from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS, DEPLOYMENTS
 from gym_zgame.envs.enums.NPC_STATES import NPC_STATES_DEAD, NPC_STATES_ZOMBIE, NPC_STATES_FLU
 from gym_zgame.envs.model.NPC import NPC
-from gym_zgame.envs.model.Attributes import Attributes
-
 
 class Neighborhood:
 
@@ -42,7 +40,7 @@ class Neighborhood:
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
-            personality = random()
+            personality = random.randrange(0, 1)
             if(personality <= 0.49):
                 npc = NPC()
                 self.breakdown["normal"] += 1
@@ -126,13 +124,13 @@ class Neighborhood:
     #raises the entire neighborhood average by adding the intended average increase to each person in the neighborhood
     def raise_total_average_fear(self, increment):
         for person in NPCs:
-            person.getfear().increment_fear(increment)
+            person.increment_fear(increment)
     def raise_total_average_morale(self, increment):
         for person in NPCs:
-            person.get_morale().increment_morale(increment)
+            person.increment_morale(increment)
     def raise_total_average_trust(self, increment):
         for person in NPCs:
-            person.get_trust().increment_trust(increment)
+            person.increment_trust(increment)
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)

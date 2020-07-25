@@ -6,4 +6,3 @@ from gym_zgame.envs.model.Coward import Coward
 from gym_zgame.envs.model.Rebel import Rebel
 from gym_zgame.envs.model.Lunatic import Lunatic
 from gym_zgame.envs.model.Neighborhood import Neighborhood
-from gym_zgame.envs.model.Attributes import Attributes

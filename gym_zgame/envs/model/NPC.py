@@ -3,7 +3,6 @@ import random
 from gym_zgame.envs.enums.NPC_STATES import NPC_STATES_DEAD, NPC_STATES_ZOMBIE, NPC_STATES_FLU
 from gym_zgame.envs.enums.NPC_ACTIONS import NPC_ACTIONS
 from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS
-from gym_zgame.envs.model.Attributes import Attributes
 
 #may place code from Simulate class into NPC class to connect personality classes with the actual representation of the people
 class NPC:
