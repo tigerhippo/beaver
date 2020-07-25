@@ -255,17 +255,17 @@ class City:
     def determine_resource_discount(self, nbh, og_cost):
         #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
         discount = 0.0
-        if nbh.get_fear() > 80:
+        if nbh.get_data().get('fear') > 80:
             discount *= 1.5
-        elif nbh.get_fear() > 60:
+        elif nbh.get_data().get('fear') > 60:
             discount *= 1.25
-        if nbh.get_morale() > 80:
+        if nbh.get_data().get('morale') > 80:
             discount *= 0.5
-        elif nbh.get_morale() > 60:
+        elif nbh.get_data().get('morale') > 60:
             discount *= 0.75
-        elif nbh.get_morale() < 20:
+        elif nbh.get_data().get('morale') < 20:
             discount *= 1.5
-        elif nbh.get_morale() < 40:
+        elif nbh.get_data().get('morale') < 40:
             discount += 1.25
         return discount
 
@@ -328,19 +328,19 @@ class City:
         total_fear = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
-            total_fear += nbh.get_fear()
+            total_fear += nbh.get_data().get('fear')
         return total_fear / len(self.neighborhoods)
     def _calculate_city_morale(self):
         total_morale = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
-            total_morale += nbh.get_morale()
+            total_morale += nbh.get_data().get('morale')
         return total_morale / len(self.neighborhoods)
     def _calculate_city_trust(self):
         total_trust = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
-            total_trust += nbh.get_trust()
+            total_trust += nbh.get_data().get('trust')
         return total_trust / len(self.neighborhoods)
         
     def _update_artificial_states(self,):

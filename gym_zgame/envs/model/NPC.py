@@ -27,17 +27,11 @@ class NPC:
         self.bag = []
         self.empty_bag()
         #default stats are from the "normal" personality
-<<<<<<< HEAD
-        #0 represents Attribute object in NPC class
-        self.atts = Attributes(0, 50, 50, 50)
-=======
         self.fear = 50
         self.trust = 50
         self.morale = 50
->>>>>>> 99c1f134a7ce53624ded4868e3db774d58f3ce81
         self.personality = "normal"
-        self.percent = 0.5 #largest percent of population
-        #self.neighborhood = 0
+        #self.percent = 0.5 largest percent of population
 
     def empty_bag(self):
         self.bag = []
@@ -105,7 +99,9 @@ class NPC:
                        'sickly': self.sickly,
                        'atts': self.atts,
                        'personality': self.personality,
-                       'percent': self.percent}
+                       'fear': self.fear,
+                       'morale': self.morale,
+                       'trust': self.trust}
         return player_data
     
     #added setter
@@ -148,13 +144,6 @@ class NPC:
             #set fear for object
             #set trust for object
             #set morale for object
-            
-    def get_fear(self):
-        return self.fear 
-    def get_morale(self):
-        return self.morale 
-    def get_trust(self):
-        return self.trust
     
     def set_fear(self, num):
         self.fear = num
@@ -174,9 +163,6 @@ class NPC:
         self.fear += list[0]
         self.morale += list[1]
         self.trust += list[2]
-
-    def get_personality(self):
-        return personality
     
     #checks to make sure all the NPC's attributes are in the desired range, fixes them if not
     def check_attribute_bounds(self):
