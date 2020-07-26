@@ -349,7 +349,6 @@ class City:
             nbh_cost *= determine_resource_discount(self, nbh, nbh_cost)
             resource_cost_per_turn += nbh_cost
         return resource_cost_per_turn
-    
     @staticmethod
     def determine_resource_discount(self, nbh, og_cost):
         #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
@@ -498,7 +497,6 @@ class City:
             if (npc.state_flu is not NPC_STATES_FLU.IMMUNE) and (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE):
                 if random.random() <= vaccine_success:
                     npc.change_flu_state(NPC_STATES_FLU.IMMUNE)
-
     def _art_trans_flu_vaccine_man(self, nbh_index):
         nbh = self.neighborhoods[nbh_index]
         vaccine_success = 0.5
@@ -530,7 +528,6 @@ class City:
             if npc.state_zombie is NPC_STATES_ZOMBIE.ZOMBIE:
                 if random.random() <= zombie_shot_prob:
                     npc.change_dead_state(NPC_STATES_DEAD.DEAD)
-
     def _art_trans_sniper_tower_free(self, nbh_index):
         nbh = self.neighborhoods[nbh_index]
         zombie_shot_prob = 1 / nbh.num_moving if nbh.num_moving > 0 else 0
@@ -890,7 +887,25 @@ class City:
             if npc.sickly or npc.active:
                 for _ in range(9):
                     npc.add_to_bag(NPC_ACTIONS.STAY)
-
+    
+    def _bag_adjust_rebellious_types(self, nbh_index):
+        nbh = self.neighborhoods[nbh_index]
+        for npc in nbh.NPCs:
+            #lunatics, rebels, and karens are much less likely to obey certain decisions
+            if (npc.get_personality() == 'karen') or (npc.get_personality() == 'rebel') or (npc.get_personality() == 'lunatic'):
+                if DEPLOYMENTS.QUARANTINE_OPEN in nbh.deployments:
+                    self._bag_adjust_quarantine_open(nbh_index)
+                if DEPLOYMENTS.QUARANTINE_FENCED in nbh.deployments:
+                    self._bag_adjust_quarantine_fenced(nbh_index)
+                if DEPLOYMENTS.RALLY_POINT_OPT in nbh.deployments:
+                    self._bag_adjust_rally_point_opt(nbh_index)
+                if DEPLOYMENTS.RALLY_POINT_FULL in nbh.deployments:
+                    self._bag_adjust_rally_point_full(nbh_index)
+                if DEPLOYMENTS.SOCIAL_DISTANCING_SIGNS in nbh.deployments:
+                    self._bag_adjust_social_distancing_signs(nbh_index)
+                if DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY in nbh.deployments:
+                    self._bag_adjust_social_distancing_celeb(nbh_index)
+            
     def process_moves(self):
         # Non-dead, non-zombie people
         self._normal_moves()

@@ -125,17 +125,21 @@ class Neighborhood:
 
     #raises the entire neighborhood average by adding the intended average increase to each person in the neighborhood
     def raise_total_average_fear(self, increment):
-        for person in NPCs:
+        for person in self.NPCs:
             person.increment_fear(increment)
-            person.check.attribute.bounds()
     def raise_total_average_morale(self, increment):
-        for person in NPCs:
+        for person in self.NPCs:
             person.increment_morale(increment)
-            person.check_attribute_bounds()
     def raise_total_average_trust(self, increment):
-        for person in NPCs:
+        for person in self.NPCs:
             person.increment_trust(increment)
-            person.check_attribute_bounds()
+    
+    def raise_personality_average(self, personality, fear, morale, trust):
+        for person in self.NPCs:
+            if person.get_personality() is personality:
+                person.increment_fear(fear)
+                person.increment_morale(morale)
+                person.increment_trust(trust)
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)
