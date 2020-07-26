@@ -97,27 +97,67 @@ class City:
                               north_east, north_west, south_east, south_west]
 
     def _init_neighborhood_threats(self):
-        # Add 10 dead in a random location
+        # Add 10 dead in a random location (10 dead NO LONGER TRUE)
         dead_loc_index = random.choice(range(len(self.neighborhoods)))
         dead_loc = self.neighborhoods[dead_loc_index]
         dead_npcs = []
-        for _ in range(10):
+
+        #generate a random number of dead people - could be zero
+        num = random.randint(0, 10)  
+        for _ in range(num):
+            if num == 0:
+                break
             dead_npc = NPC()
             dead_npc.change_dead_state(NPC_STATES_DEAD.DEAD)
             dead_npcs.append(dead_npc)
         dead_loc.add_NPCs(dead_npcs)
-        dead_loc.orig_dead += 10
+        dead_loc.orig_dead += num
 
-        # Add 1 zombie in a random location
-        zombie_loc = random.choice(self.neighborhoods)
-        zombie_npc = NPC()
-        zombie_npc.change_zombie_state(NPC_STATES_ZOMBIE.ZOMBIE)
-        zombie_loc.add_NPC(zombie_npc)
-        # Add 1 flue incubating at each location
-        for nbh in self.neighborhoods:
+        # Add 1 zombie in a random location (1 zombie NO LONGER TRUE)
+        zombie_loc_index = random.choice(range(len(self.neighborhoods)))
+        zombie_loc = self.neighborhoods[zombie_loc_index]
+        zombie_npcs = []
+
+        #generate a random number of zombies - could be zero
+        num = random.randint(0, 10)
+        for _ in range(num):
+            if num == 0:
+                break
+            zombie_npc = NPC()
+            zombie_npc.change_zombie_state(NPC_STATES_ZOMBIE.ZOMBIE)
+            zombie_npcs.append(zombie_npc)
+        zombie_loc.add_NPCs(zombie_npcs)
+        zombie_loc.orig_zombie += num
+
+        # Add 1 flu incubating at each location (1 flu NO LONGER TRUE)
+
+        flu_loc_index = random.choice(range(len(self.neighborhoods)))
+        flu_loc = self.neighborhoods[flu_loc_index]
+        flu_npcs = []
+
+        #generate a random number of flu incubations - could be zero
+        num = random.randint(0, 10)
+        for _ in range(num):
+            if num == 0:
+                break
             flu_npc = NPC()
-            flu_npc.change_flu_state(NPC_STATES_FLU.INCUBATING)
-            nbh.add_NPC(flu_npc)
+            flu_npc.change_flu_state(NPC_STATES_FLU.FLU)
+            flu_npcs.append(flu_npc)
+        flu_loc.add_NPCs(flu_npcs)
+        flu_loc.orig_flu += num
+
+        dead_zombie_flu = [] #QUIET CASES - stores three booleans which represent whether there are no dead, no zombies, and/or no flu 
+        if len(dead_npcs) == 0:
+            no_dead = True
+            dead_zombie_flu.append(no_dead)
+        if len(zombie_npcs) == 0:
+            no_zombies = True
+            dead_zombie_flu.append(no_zombies)
+        if len(flu_npcs) == 0:
+            no_flu = True
+            dead_zombie_flu.append(no_flu)
+        
+        return dead_zombie_flu
 
     def _get_original_state_metrics(self):
         og_alive = 0

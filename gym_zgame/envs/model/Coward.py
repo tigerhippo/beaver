@@ -5,7 +5,7 @@ class Coward(NPC):
         super().__init__()
         self.atts = Attributes(0, 60, 50, 50)
         self.personality = "coward"
-        self.percent = 0.09 #4th largest percent of population
+        #self.percent = 0.09 #4th largest percent of population
 
     def __str__(self):
         percentage = Coward.pop_percent * 100
@@ -16,14 +16,14 @@ class Coward(NPC):
         #50% chance that the coward chooses to waste resources
         num = random.randint(0, 9)
 
-        #resources_wasted = False
+        resources_wasted = False
         if num < 5:
             addFear_by = 1
             addTrust_by = 0
             addMorale_by = -1
             factors = [addFear_by, addTrust_by, addMorale_by] 
             self.atts.change_allfactors(factors)
-            #resources_wasted = True 
+            resources_wasted = True 
             #necessary to tell another class that a deployment should be removed
 
-        #return resources_wasted
+        return resources_wasted
