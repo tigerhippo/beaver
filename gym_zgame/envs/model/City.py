@@ -223,7 +223,7 @@ class City:
 
     @staticmethod
     def determine_increment_resources(self):
-        # Update resource increments
+        # Update resource increments for per-turn deployments
         resource_cost_per_turn = 0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
@@ -232,20 +232,20 @@ class City:
                 # deployments not included do not have fear or resources costs
                 if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
+                if dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.FLU_VACCINE_MAN:
+                if dep is DEPLOYMENTS.FLU_VACCINE_MAN:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.PHEROMONES_MEAT:
+                if dep is DEPLOYMENTS.PHEROMONES_MEAT:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
+                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
                     if nbh.num_active >= 5:
                         nbh_cost -= 1
-                elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
+                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
                     nbh_cost -= 2
-                elif dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
+                if dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
+                if dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
                     nbh_cost += 1
             #applies the morale or high fear resource increase/decrease
             nbh_cost *= determine_resource_discount(self, nbh, nbh_cost)
@@ -290,9 +290,92 @@ class City:
             morale_increment = 0
             trust_increment = 0
             for dep in nbh.deployments:
-                if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
+                if dep is QUARANTINE_OPEN:
                     fear_increment += 5
-                #just wanted to get basic structure down for now
+                if dep is QUARANTINE_FENCED:
+                    fear_increment += 1
+                if dep is BITE_CENTER_DISINFECT:
+                    fear_increment -= 5
+                    morale_increment += 5
+                    trust_increment += 2.5
+                if dep is BITE_CENTER_AMPUTATE:
+                    fear_increment -= 2.5
+                    morale_increment += 5
+                    trust_increment += 1.25
+                if dep is Z_CURE_CENTER_FDA:
+                    fear_increment -= 10
+                    morale_increment += 10
+                    trust_increment += 5
+                if dep is Z_CURE_CENTER_EXP:
+                    fear_increment -= 5
+                    morale_increment += 10
+                    trust_increment += 2.5
+                if dep is FLU_VACCINE_OPT:
+                    fear_increment -= 10
+                    morale_increment += 10
+                    trust_increment += 10
+                if dep is FLU_VACCINE_MAN:
+                    fear_increment += 5
+                    morale_increment += 10
+                    trust_increment -= 5
+                if dep is KILN_OVERSIGHT:
+                    fear_increment -= 5
+                    morale_increment += 2.5
+                    trust_increment += 5
+                if dep is KILN_NO_QUESTIONS:
+                    fear_increment += 10
+                    morale_increment -= 2.5
+                    trust_increment -= 10
+                if dep is BROADCAST_DONT_PANIC:
+                    fear_increment -= 10
+                    morale_increment += 10
+                    trust_increment -= 10
+                if dep is BROADCAST_CALL_TO_ARMS:
+                    fear_increment -= 25
+                    morale_increment += 25
+                    trust_increment -= 25
+                if dep is SNIPER_TOWER_CONFIRM:
+                    fear_increment += 5
+                    morale_increment += 5
+                    trust_increment += 5
+                if dep is SNIPER_TOWER_FREE:
+                    fear_increment += 10
+                    morale_increment -= 10
+                    trust_increment -= 10
+                if dep is PHEROMONES_BRAINS:
+                    fear_increment -= 10
+                    morale_increment -= 10
+                    trust_increment += 10
+                if dep is PHEROMONES_MEAT:
+                    fear_increment -= 25
+                    morale_increment += 10
+                    trust_increment -= 25
+                if dep is BSL4_LAB_SAFETY_ON:
+                    morale_increment += 10
+                if dep is BSL4_LAB_SAFETY_OFF:
+                    trust_increment -= 25
+                if dep is RALLY_POINT_OPT:
+                    morale_increment += 5
+                    trust_increment += 5
+                if dep is RALLY_POINT_FULL:
+                    fear_increment += 19
+                    trust_increment -= 10
+                if dep is FIREBOMB_PRIMED:
+                    fear_increment += 25
+                    morale_increment -= 25
+                    trust_increment -= 25
+                if dep is FIREBOMB_BARRAGE:
+                    fear_increment += 25
+                    morale_increment -= 25
+                    trust_increment -= 25
+                if dep is SOCIAL_DISTANCING_SIGNS:
+                    fear_increment += 5
+                    morale_increment -= 5
+                    trust_increment += 5
+                if dep is SOCIAL_DISTANCING_CELEBRITY:
+                    fear_increment -= 5
+                    morale_increment += 5
+                    trust_increment += 10
             #passive increment for every turn
             if(nbh.get_data()["num_zombie"] > nbh.get_data()["num.alive"] / 2): #we can change threshold later
                 fear_increment += 10
@@ -952,8 +1035,8 @@ class City:
         # Include global stats
         global_stats = PBack.purple + '#####################################  GLOBAL STATUS  ######################################' + PBack.reset + '\n'
         global_stats += ' Turn: {0} of {1}'.format(self.turn, self.max_turns).ljust(42) +'\n'
-        global_stats += ' Global Fear: {}'.format(self.fear).ljust(42) + ' Morale: {}'.format(self.morale).ljust(42) + ' Trust: {}'.format(self.trust).ljust(42) + '\n'
-        global_stats += ' Resources: {}'.format(self.resources).ljust(42) + 'Dead at Start: {}'.format(self.orig_dead) + 'Living at Start: {}'.format(self.orig_alive) + '\n'
+        global_stats += ' Global Fear: {}'.format(self.fear).ljust(42) + 'Morale: {}'.format(self.morale).ljust(42) + 'Trust: {}'.format(self.trust) + '\n'
+        global_stats += ' Resources: {}'.format(self.resources).ljust(42) + ' Dead at Start: {}'.format(self.orig_dead).ljust(42) + ' Living at Start: {}'.format(self.orig_alive) + '\n'
         global_stats += PBack.purple + '############################################################################################' + PBack.reset + '\n'
         fancy_string += global_stats
 
