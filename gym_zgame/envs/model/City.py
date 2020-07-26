@@ -213,83 +213,16 @@ class City:
     def _add_buildings_to_locations(self, nbh_1_index, dep_1, nbh_2_index, dep_2):
         # Update the list of deployments at that location
         self.neighborhoods[nbh_1_index].add_deployment(dep_1)
+        self.change_attributes_deployments(self.neighborhoods[nbh_1_index], dep_1)
         self.neighborhoods[nbh_2_index].add_deployment(dep_2)
-
-    def update_states(self):
-        self._update_trackers()
-        self._update_global_states()
-        self._update_artificial_states()
-        self._update_natural_states()
-
+        self.change_attributes_deployments(self.neighborhoods[nbh_2_index])
     @staticmethod
-    def determine_increment_resources(self):
-        # Update resource increments for per-turn deployments
-        resource_cost_per_turn = 0
-        for nbh_index in range(len(self.neighborhoods)):
-            nbh = self.neighborhoods[nbh_index]
-            nbh_cost = 0
-            for dep in nbh.deployments:
-                # deployments not included do not have fear or resources costs
-                if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.FLU_VACCINE_MAN:
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.PHEROMONES_MEAT:
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
-                    if nbh.num_active >= 5:
-                        nbh_cost -= 1
-                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
-                    nbh_cost -= 2
-                if dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
-                    nbh_cost += 1
-            #applies the morale or high fear resource increase/decrease
-            nbh_cost *= determine_resource_discount(self, nbh, nbh_cost)
-            resource_cost_per_turn += nbh_cost
-        return resource_cost_per_turn
-    
-    @staticmethod
-    def determine_resource_discount(self, nbh, og_cost):
-        #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
-        discount = 0.0
-        if nbh.get_data().get('fear') > 80:
-            discount *= 1.5
-        elif nbh.get_data().get('fear') > 60:
-            discount *= 1.25
-        if nbh.get_data().get('morale') > 80:
-            discount *= 0.5
-        elif nbh.get_data().get('morale') > 60:
-            discount *= 0.75
-        elif nbh.get_data().get('morale') < 20:
-            discount *= 1.5
-        elif nbh.get_data().get('morale') < 40:
-            discount += 1.25
-        return discount
-
-    def _update_global_states(self):
-        self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
-        if self.resources < 0:
-            self.resources = 0
-            self._destroy_upkeep_deployments()
-        self.update_attributes()
-
-    def _destroy_upkeep_deployments(self):
-        for nbh in self.neighborhoods:
-            nbh.destroy_deployments_by_type(self.UPKEEP_DEPS)
-
-    #FOR NOW ONLY FOR DEPLOYMENTS + PASSIVE PER-TURN INCREASES (will add other sources later)
-    @staticmethod
-    def update_attributes(self):
-        for nbh_index in range(len(self.neighborhoods)):
-            nbh = self.neighborhoods[nbh_index]
-            fear_increment = 0
-            morale_increment = 0
-            trust_increment = 0
-            for dep in nbh.deployments:
+    def change_attributes_deployments(self, nbh, dep):
+        #makes the relevant attribute changes upon building a deployment happen
+        fear_increment = 0
+        morale_increment = 0
+        trust_increment = 0
+        for dep in nbh.deployments:
                 if dep is QUARANTINE_OPEN:
                     fear_increment += 5
                 if dep is QUARANTINE_FENCED:
@@ -376,6 +309,84 @@ class City:
                     fear_increment -= 5
                     morale_increment += 5
                     trust_increment += 10
+        nbh.raise_total_average_fear(fear_increment)
+        nbh.raise_total_average_morale(morale_increment)
+        nbh.raise_total_average_trust(trust_increment)
+
+    def update_states(self):
+        self._update_trackers()
+        self._update_global_states()
+        self._update_artificial_states()
+        self._update_natural_states()
+
+    @staticmethod
+    def determine_increment_resources(self):
+        # Update resource increments for per-turn deployments
+        resource_cost_per_turn = 0
+        for nbh_index in range(len(self.neighborhoods)):
+            nbh = self.neighborhoods[nbh_index]
+            nbh_cost = 0
+            for dep in nbh.deployments:
+                # deployments not included do not have fear or resources costs
+                if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
+                    nbh_cost += 1
+                if dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
+                    nbh_cost += 1
+                if dep is DEPLOYMENTS.FLU_VACCINE_MAN:
+                    nbh_cost += 1
+                if dep is DEPLOYMENTS.PHEROMONES_MEAT:
+                    nbh_cost += 1
+                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
+                    if nbh.num_active >= 5:
+                        nbh_cost -= 1
+                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
+                    nbh_cost -= 2
+                if dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
+                    nbh_cost += 1
+                if dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
+                    nbh_cost += 1
+            #applies the morale or high fear resource increase/decrease
+            nbh_cost *= determine_resource_discount(self, nbh, nbh_cost)
+            resource_cost_per_turn += nbh_cost
+        return resource_cost_per_turn
+    
+    @staticmethod
+    def determine_resource_discount(self, nbh, og_cost):
+        #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
+        discount = 0.0
+        if nbh.get_data().get('fear') > 80:
+            discount *= 1.5
+        elif nbh.get_data().get('fear') > 60:
+            discount *= 1.25
+        if nbh.get_data().get('morale') > 80:
+            discount *= 0.5
+        elif nbh.get_data().get('morale') > 60:
+            discount *= 0.75
+        elif nbh.get_data().get('morale') < 20:
+            discount *= 1.5
+        elif nbh.get_data().get('morale') < 40:
+            discount += 1.25
+        return discount
+
+    def _update_global_states(self):
+        self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
+        if self.resources < 0:
+            self.resources = 0
+            self._destroy_upkeep_deployments()
+        self.update_attributes()
+
+    def _destroy_upkeep_deployments(self):
+        for nbh in self.neighborhoods:
+            nbh.destroy_deployments_by_type(self.UPKEEP_DEPS)
+
+    #FOR NOW ONLY FOR PASSIVE PER-TURN INCREASES (will add other sources later)
+    @staticmethod
+    def update_attributes(self):
+        for nbh_index in range(len(self.neighborhoods)):
+            nbh = self.neighborhoods[nbh_index]
+            fear_increment = 0
+            morale_increment = 0
+            trust_increment = 0
             #passive increment for every turn
             if(nbh.get_data()["num_zombie"] > nbh.get_data()["num.alive"] / 2): #we can change threshold later
                 fear_increment += 10

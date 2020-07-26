@@ -109,6 +109,7 @@ class Neighborhood:
             print('WARNING: Attempted to remove NPC that did not exist in neighborhood')
     def remove_NPCs(self, NPCs):
         for NPC in NPCs:
+            self.breakdown[npc.get_personality()] -= 1
             self.remove_NPC(NPC)
 
     def clean_all_bags(self):
@@ -126,12 +127,15 @@ class Neighborhood:
     def raise_total_average_fear(self, increment):
         for person in NPCs:
             person.increment_fear(increment)
+            person.check.attribute.bounds()
     def raise_total_average_morale(self, increment):
         for person in NPCs:
             person.increment_morale(increment)
+            person.check_attribute_bounds()
     def raise_total_average_trust(self, increment):
         for person in NPCs:
             person.increment_trust(increment)
+            person.check_attribute_bounds()
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)
@@ -199,7 +203,7 @@ class Neighborhood:
         #averages the attributes of all NPCs to get neighborhood attributes
         self.fear = fear / num_npcs
         self.morale = morale / num_npcs
-        trust = trust / num_npcs
+        self.trust = trust / num_npcs
 
         total_count_dead = self.num_alive + self.num_dead + self.num_ashen
         total_count_zombie = self.num_human + self.num_zombie_bitten + self.num_zombie
@@ -240,11 +244,6 @@ class Neighborhood:
     #added setter
     def set_breakdown(self, breakdown):
         self.breakdown = breakdown
-    
-    #added setter
-    def set_atts(self, atts):
-        self.atts = atts
-
 
 if __name__ == '__main__':
     nb = Neighborhood('CENTER', LOCATIONS.CENTER, (LOCATIONS.N, LOCATIONS.S, LOCATIONS.W, LOCATIONS.E), 10)
