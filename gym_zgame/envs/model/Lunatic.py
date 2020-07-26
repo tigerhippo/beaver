@@ -5,7 +5,9 @@ from gym_zgame.envs.model.NPC import NPC
 class Lunatic(NPC):
     def __init__(self):
         super().__init__()
-        self.atts = Attributes(0, 20, 80, 40)
+        self.fear = 20
+        self.morale = 80
+        self.trust = 40
         self.personality = "lunatic"
         #self.percent = 0.01 #6th largest percent of population
 

@@ -3,9 +3,11 @@ from gym_zgame.envs.model.NPC import NPC
 class Karen(NPC):
     def __init__(self):
         super().__init__()
-        self.atts = Attributes(0, 50, 50, 50) #0 means part of NPC class, 50/50/50 are the fear/trust/morale levels
-        self.personality = "karen" 
-        #self.percent = 0.25 #2nd largest percent of population
+        self.fear = 50
+        self.morale = 50
+        self.trust = 50
+        self.personality = "karen"
+        #self.percent = 0.25 2nd largest percent of population
 
     #returns all data for this object in a neat, clear format
     def __str__(self): 

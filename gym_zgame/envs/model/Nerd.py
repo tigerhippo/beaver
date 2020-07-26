@@ -4,7 +4,9 @@ from gym_zgame.envs.model.NPC import NPC
 class Nerd(NPC): 
     def __init__(self):
         super().__init__()
-        self.atts = Attributes(0, 40, 50, 60)
+        self.fear = 40
+        self.morale = 50
+        self.trust = 60
         self.personality = "nerd"
         self.mutation = Mutation() #creates new mutation object
         #SHOULD WE MAKE IT SO THAT A MUTATION OBJECT IS CREATED IN A CLASS FOR ALL NERDS

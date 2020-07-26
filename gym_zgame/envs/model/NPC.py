@@ -27,8 +27,14 @@ class NPC:
         self.bag = []
         self.empty_bag()
         #default stats are from the "normal" personality
+<<<<<<< HEAD
         #0 represents Attribute object in NPC class
         self.atts = Attributes(0, 50, 50, 50)
+=======
+        self.fear = 50
+        self.trust = 50
+        self.morale = 50
+>>>>>>> 99c1f134a7ce53624ded4868e3db774d58f3ce81
         self.personality = "normal"
         self.percent = 0.5 #largest percent of population
         #self.neighborhood = 0
@@ -142,6 +148,50 @@ class NPC:
             #set fear for object
             #set trust for object
             #set morale for object
+            
+    def get_fear(self):
+        return self.fear 
+    def get_morale(self):
+        return self.morale 
+    def get_trust(self):
+        return self.trust
+    
+    def set_fear(self, num):
+        self.fear = num
+    def set_morale(self, num):
+        self.morale = num
+    def set_trust(self, num):
+        self.trust = num
+
+    def increment_fear(self, increment):
+        self.fear += increment
+    def increment_morale(self, increment):
+        self.morale += increment
+    def increment_trust(self, increment):
+        self.trust += increment
+
+    def increment_allfactors(self, list):
+        self.fear += list[0]
+        self.morale += list[1]
+        self.trust += list[2]
+
+    def get_personality(self):
+        return personality
+    
+    #checks to make sure all the NPC's attributes are in the desired range, fixes them if not
+    def check_attribute_bounds(self):
+        if self.fear < 0:
+            self.fear = 0
+        elif self.fear > 100:
+            self.fear = 100
+        if self.morale < 0:
+            self.morale = 0
+        elif self.morale > 100:
+            self.morale = 100
+        if self.trust < 0:
+            self.trust = 0
+        elif self.trust > 100:
+            self.trust = 100
 
 
 if __name__ == '__main__':
