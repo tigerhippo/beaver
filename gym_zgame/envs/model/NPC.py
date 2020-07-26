@@ -31,7 +31,8 @@ class NPC:
         self.trust = 50
         self.morale = 50
         self.personality = "normal"
-        #self.percent = 0.5 largest percent of population
+        # self.percent = 0.5 #largest percent of population
+        #self.neighborhood = 0
 
     def empty_bag(self):
         self.bag = []
@@ -99,65 +100,37 @@ class NPC:
                        'sickly': self.sickly,
                        'atts': self.atts,
                        'personality': self.personality,
-                       'fear': self.fear,
-                       'morale': self.morale,
-                       'trust': self.trust}
+                       'percent': self.percent}
         return player_data
-
-     #def _shouldDisobeyKaren_(self):
-        #generate random number 0 - 9
-        #if num < 5
-            #factors = karen._disobey_(self)
-            #for i in range(len(factors)):
-                #except for Karen:
-                #set fear for object
-                #set trust for object
-                #set morale for object
-    
-    #def _shouldDisobeyRebel_(self):
-        #generate random number 0 - 9
-        #if num < 8 
-            #factors = rebel._disobey_(self)
-            #for i in range(len(factors)):
-                #except for rebel
-                #set fear for object
-                #set trust for object
-                #set morale for object
-
-    #def _shouldDisobeyLunatic_(self):
-        #will disobey 100% of the time
-        #factors = lunatic._disobey_(self)
-        #for i in range(len(factors)):
-            #except for Lunatic:
-            #set fear for object
-            #set trust for object
-            #set morale for object
+            
+    def get_fear(self):
+        return self.fear 
+    def get_morale(self):
+        return self.morale 
+    def get_trust(self):
+        return self.trust
     
     def set_fear(self, num):
         self.fear = num
-        self.check_attribute_bounds
     def set_morale(self, num):
         self.morale = num
-        self.check_attribute_bounds
     def set_trust(self, num):
         self.trust = num
-        self.check_attribute_bounds
 
     def increment_fear(self, increment):
         self.fear += increment
-        self.check_attribute_bounds
     def increment_morale(self, increment):
         self.morale += increment
-        self.check_attribute_bounds
     def increment_trust(self, increment):
         self.trust += increment
-        self.check_attibute_bounds
 
     def increment_allfactors(self, fear, morale, trust):
         self.fear += fear
         self.morale += morale
         self.trust += trust
-        self.check_attribute_bounds()
+
+    def get_personality(self):
+        return personality
     
     #checks to make sure all the NPC's attributes are in the desired range, fixes them if not
     def check_attribute_bounds(self):
@@ -173,7 +146,6 @@ class NPC:
             self.trust = 0
         elif self.trust > 100:
             self.trust = 100
-
 
 if __name__ == '__main__':
     pers = NPC()

@@ -10,10 +10,6 @@ class Nerd(NPC):
         self.personality = "nerd"
         # self.percent = 0.05 5th largest percent of population
 
-    def __str__(self):
-        percentage = Nerd.pop_percent * 100
-        return "This person is of personality type " + Nerd.type_name + ", has a fear level of " + str(self.fear) + ", " + "a trust level of " + str(self.trust) + ", " + "and a morale level of " + str(self.morale) + ", and accounts for " + str(percentage) + "% of the population."
-
     #may research to try and find a cure
     def _research_(self):
         #10% of the time successful cure found

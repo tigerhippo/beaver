@@ -212,10 +212,16 @@ class City:
 
     def _add_buildings_to_locations(self, nbh_1_index, dep_1, nbh_2_index, dep_2):
         # Update the list of deployments at that location
-        self.neighborhoods[nbh_1_index].add_deployment(dep_1)
-        self.change_attributes_deployments(self.neighborhoods[nbh_1_index], dep_1)
-        self.neighborhoods[nbh_2_index].add_deployment(dep_2)
-        self.change_attributes_deployments(self.neighborhoods[nbh_2_index])
+        if self.neighborhoods[nbh_1_index].get_riot_status() == False:
+            self.neighborhoods[nbh_1_index].add_deployment(dep_1)
+            self.change_attributes_deployments(self.neighborhoods[nbh_1_index], dep_1)
+        else:
+            print('neighborhood 1 has an ongoing riot! action failed')
+        if self.neighborhoods[nbh_2_index].get_riot_status() == False:
+            self.neighborhoods[nbh_2_index].add_deployment(dep_2)
+            self.change_attributes_deployments(self.neighborhoods[nbh_2_index])
+        else:
+            print('neighborhood 2 has an ongoing riot! action failed')
     @staticmethod
     def change_attributes_deployments(self, nbh, dep):
         #makes the relevant attribute changes upon building a deployment happen

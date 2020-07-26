@@ -15,6 +15,7 @@ class Neighborhood:
         self.adj_locations = adj_locations
         self._npc_init(num_init_npcs)
         self.deployments = []
+        self.riot_status = False
         # Transition probabilities
         self.trans_probs = self.compute_baseline_trans_probs()
         # Keep summary stats up to date for ease
@@ -109,7 +110,6 @@ class Neighborhood:
             print('WARNING: Attempted to remove NPC that did not exist in neighborhood')
     def remove_NPCs(self, NPCs):
         for NPC in NPCs:
-            self.breakdown[npc.get_personality()] -= 1
             self.remove_NPC(NPC)
 
     def clean_all_bags(self):
@@ -122,24 +122,30 @@ class Neighborhood:
         self.deployments.extend(deployments)
     def destroy_deployments_by_type(self, dep_types):
         self.deployments = [dep for dep in self.deployments if dep not in dep_types]
+    
+    def get_riot_status(self):
+        return self.riot_status
+
+    def update_riot_status(self):
+        self.riot_status = False
+        riot_chance = 0.1
+        chance = random.randrange(0, 1)
+        if self.trust < 20.0 and chance < riot_chance:
+            for npc in self.NPCs:
+                if npc.get_personality():
+                    self.riot_status = True
+                    break
 
     #raises the entire neighborhood average by adding the intended average increase to each person in the neighborhood
     def raise_total_average_fear(self, increment):
-        for person in self.NPCs:
+        for person in NPCs:
             person.increment_fear(increment)
     def raise_total_average_morale(self, increment):
-        for person in self.NPCs:
+        for person in NPCs:
             person.increment_morale(increment)
     def raise_total_average_trust(self, increment):
-        for person in self.NPCs:
+        for person in NPCs:
             person.increment_trust(increment)
-    
-    def raise_personality_average(self, personality, fear, morale, trust):
-        for person in self.NPCs:
-            if person.get_personality() is personality:
-                person.increment_fear(fear)
-                person.increment_morale(morale)
-                person.increment_trust(trust)
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)
@@ -156,10 +162,6 @@ class Neighborhood:
         num_moving = 0
         num_active = 0
         num_sickly = 0
-        fear = 0.0
-        trust = 0.0
-        morale = 0.0
-
         for npc in self.NPCs:
             if npc.state_dead is NPC_STATES_DEAD.ALIVE:
                 num_alive += 1
@@ -187,9 +189,7 @@ class Neighborhood:
                 num_active += 1
             if npc.sickly:
                 num_sickly += 1
-            fear += npc.get_data().get('fear')
-            morale += npc.get_data().get('morale')
-            trust += npc.get_data().get('trust')
+
         self.num_alive = num_alive
         self.num_dead = num_dead
         self.num_ashen = num_ashen
@@ -203,11 +203,6 @@ class Neighborhood:
         self.num_moving = num_moving
         self.num_active = num_active
         self.num_sickly = num_sickly
-        
-        #averages the attributes of all NPCs to get neighborhood attributes
-        self.fear = fear / num_npcs
-        self.morale = morale / num_npcs
-        self.trust = trust / num_npcs
 
         total_count_dead = self.num_alive + self.num_dead + self.num_ashen
         total_count_zombie = self.num_human + self.num_zombie_bitten + self.num_zombie
@@ -215,6 +210,8 @@ class Neighborhood:
         assert (self.num_npcs == total_count_dead)
         assert (self.num_npcs == total_count_zombie)
         assert (self.num_npcs == total_count_flu)
+        
+        self.update_riot_status()
 
     def get_data(self):
         #added breakdown and atts data
@@ -224,6 +221,7 @@ class Neighborhood:
                              'fear': self.fear,
                              'morale': self.morale,
                              'trust': self.trust,
+                             'riot_status': self.riot_status,
                              'num_npcs': self.num_npcs,
                              'num_alive': self.num_alive,
                              'num_dead': self.num_dead,
@@ -248,6 +246,11 @@ class Neighborhood:
     #added setter
     def set_breakdown(self, breakdown):
         self.breakdown = breakdown
+    
+    #added setter
+    def set_atts(self, atts):
+        self.atts = atts
+
 
 if __name__ == '__main__':
     nb = Neighborhood('CENTER', LOCATIONS.CENTER, (LOCATIONS.N, LOCATIONS.S, LOCATIONS.W, LOCATIONS.E), 10)
