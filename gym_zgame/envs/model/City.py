@@ -718,16 +718,13 @@ class City:
                         npc.add_to_bag(npc_action)
 
     def adjust_bags_for_deployments(self):
-        for nbh_index in range(len(self.neighborhoods)):
-            nbh = self.neighborhoods[nbh_index]
-            if DEPLOYMENTS.QUARANTINE_OPEN in nbh.deployments:
-                self._bag_adjust_quarantine_open(nbh_index)
-            if DEPLOYMENTS.QUARANTINE_FENCED in nbh.deployments:
-                self._bag_adjust_quarantine_fenced(nbh_index)
+        for nbh in self.neighborhoods:
             if DEPLOYMENTS.PHEROMONES_BRAINS in nbh.deployments:
                 self._bag_adjust_pheromones_brains(nbh_index)
             if DEPLOYMENTS.PHEROMONES_MEAT in nbh.deployments:
                 self._bag_adjust_pheromones_meat(nbh_index)
+            if (DEPLOYMENTS.QUARANTINE_OPEN in nbh.deployments) or (DEPLOYMENTS.QUARANTINE_FENCED in nbh.deployments):
+                self._bag_adjust_quarantine(nbh_index)
             if DEPLOYMENTS.RALLY_POINT_OPT in nbh.deployments:
                 self._bag_adjust_rally_point_opt(nbh_index)
             if DEPLOYMENTS.RALLY_POINT_FULL in nbh.deployments:
@@ -737,52 +734,7 @@ class City:
             if DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY in nbh.deployments:
                 self._bag_adjust_social_distancing_celeb(nbh_index)
 
-    def _bag_adjust_quarantine_open(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
-        for npc in nbh.NPCs:
-            # push out active people
-            if npc.active:
-                for npc_action in nbh.adj_locations.values():
-                    for _ in range(3):
-                        npc.add_to_bag(npc_action)
-            # sick people here tend to stay
-            if npc.sickly:
-                for _ in range(10):
-                    npc.add_to_bag(NPC_ACTIONS.STAY)
-        # Pull in sickly people for adj neighborhoods
-        for loc, npc_action in nbh.adj_locations.items():
-            inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
-            for temp_nbh in self.neighborhoods:
-                if temp_nbh.location is loc:
-                    for npc in temp_nbh.NPCs:
-                        if npc.sickly:
-                            for _ in range(10):
-                                npc.add_to_bag(inward_npc_action)
-
-    def _bag_adjust_quarantine_fenced(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
-        for npc in nbh.NPCs:
-            # push out active people
-            if npc.active:
-                for npc_action in nbh.adj_locations.values():
-                    for _ in range(3):
-                        npc.add_to_bag(npc_action)
-            # sick people here tend to stay
-            if npc.sickly:
-                for _ in range(10):
-                    npc.add_to_bag(NPC_ACTIONS.STAY)
-        # Pull in sickly people for adj neighborhoods
-        for loc, npc_action in nbh.adj_locations.items():
-            inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
-            for temp_nbh in self.neighborhoods:
-                if temp_nbh.location is loc:
-                    for npc in temp_nbh.NPCs:
-                        if npc.sickly:
-                            for _ in range(10):
-                                npc.add_to_bag(inward_npc_action)
-
-    def _bag_adjust_pheromones_brains(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+    def _bag_adjust_pheromones_brains(self, nbh):
         # Some NPCs want to stay here because of the pheromones
         for npc in nbh.NPCs:
             # Zombies want to stay even more
@@ -807,9 +759,7 @@ class City:
                         if npc.state_zombie is NPC_STATES_ZOMBIE.ZOMBIE_BITTEN:
                             for _ in range(1):
                                 npc.add_to_bag(inward_npc_action)
-
-    def _bag_adjust_pheromones_meat(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+    def _bag_adjust_pheromones_meat(self, nbh):
         # Some NPCs want to stay here because of the pheromones
         for npc in nbh.NPCs:
             # Zombies want to stay even more
@@ -843,68 +793,82 @@ class City:
                             for _ in range(1):
                                 npc.add_to_bag(inward_npc_action)
 
-    def _bag_adjust_rally_point_opt(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+    def _bag_adjust_quarantine(self, nbh):
+        for npc in nbh.NPCs:
+            disobey_chance = npc.get_trust() / 100
+            chance = random.randrange(0, 1)
+            if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                # push out active people
+                if npc.active:
+                    for npc_action in nbh.adj_locations.values():
+                        for _ in range(3):
+                            npc.add_to_bag(npc_action)
+                # sick people here tend to stay
+                if npc.sickly:
+                    for _ in range(10):
+                        npc.add_to_bag(NPC_ACTIONS.STAY)
+        # Pull in sickly people for adj neighborhoods
+        for loc, npc_action in nbh.adj_locations.items():
+            inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
+            for temp_nbh in self.neighborhoods:
+                if temp_nbh.location is loc:
+                    for npc in temp_nbh.NPCs:
+                        disobey_chance = npc.get_trust() / 100
+                        chance = random.randrange(0, 1)
+                        if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                            if npc.sickly:
+                                for _ in range(10):
+                                    npc.add_to_bag(inward_npc_action)
+
+    def _bag_adjust_rally_point_opt(self, nbh):
         # Pull in people for adj neighborhoods
         for loc, npc_action in nbh.adj_locations.items():
             inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
             for temp_nbh in self.neighborhoods:
                 if temp_nbh.location is loc:
                     for npc in temp_nbh.NPCs:
-                        # Sometimes people listen
-                        if npc.active:
-                            for _ in range(3):
-                                npc.add_to_bag(inward_npc_action)
-
-    def _bag_adjust_rally_point_full(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+                        disobey_chance = npc.get_trust() / 100
+                        chance = random.randrange(0, 1)
+                        if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                            # Sometimes people listen
+                            if npc.active:
+                                for _ in range(3):
+                                    npc.add_to_bag(inward_npc_action)
+    def _bag_adjust_rally_point_full(self, nbh):
         # Pull in people for adj neighborhoods
         for loc, npc_action in nbh.adj_locations.items():
             inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
             for temp_nbh in self.neighborhoods:
                 if temp_nbh.location is loc:
                     for npc in temp_nbh.NPCs:
-                        # Sometimes people listen
-                        if (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE) or \
-                                (npc.state_dead is not NPC_STATES_DEAD.DEAD):
-                            for _ in range(10):
-                                npc.add_to_bag(inward_npc_action)
+                        disobey_chance = npc.get_trust() / 100
+                        chance = random.randrange(0, 1)
+                        if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                            # Sometimes people listen
+                            if (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE) or (npc.state_dead is not NPC_STATES_DEAD.DEAD):
+                                for _ in range(10):
+                                    npc.add_to_bag(inward_npc_action)
 
-    def _bag_adjust_social_distancing_signs(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+    def _bag_adjust_social_distancing_signs(self, nbh):
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
-            # People who are sickly and active want to stay in place
-            if npc.sickly or npc.active:
-                for _ in range(2):
-                    npc.add_to_bag(NPC_ACTIONS.STAY)
-
-    def _bag_adjust_social_distancing_celeb(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+            disobey_chance = npc.get_trust() / 100
+            chance = random.randrange(0, 1)
+            if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                # People who are sickly and active want to stay in place
+                if npc.sickly or npc.active:
+                    for _ in range(2):
+                        npc.add_to_bag(NPC_ACTIONS.STAY)
+    def _bag_adjust_social_distancing_celeb(self, nbh):
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
-            # People who are sickly and active want to stay in place
-            if npc.sickly or npc.active:
-                for _ in range(9):
-                    npc.add_to_bag(NPC_ACTIONS.STAY)
-    
-    def _bag_adjust_rebellious_types(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
-        for npc in nbh.NPCs:
-            #lunatics, rebels, and karens are much less likely to obey certain decisions
-            if (npc.get_personality() == 'karen') or (npc.get_personality() == 'rebel') or (npc.get_personality() == 'lunatic'):
-                if DEPLOYMENTS.QUARANTINE_OPEN in nbh.deployments:
-                    self._bag_adjust_quarantine_open(nbh_index)
-                if DEPLOYMENTS.QUARANTINE_FENCED in nbh.deployments:
-                    self._bag_adjust_quarantine_fenced(nbh_index)
-                if DEPLOYMENTS.RALLY_POINT_OPT in nbh.deployments:
-                    self._bag_adjust_rally_point_opt(nbh_index)
-                if DEPLOYMENTS.RALLY_POINT_FULL in nbh.deployments:
-                    self._bag_adjust_rally_point_full(nbh_index)
-                if DEPLOYMENTS.SOCIAL_DISTANCING_SIGNS in nbh.deployments:
-                    self._bag_adjust_social_distancing_signs(nbh_index)
-                if DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY in nbh.deployments:
-                    self._bag_adjust_social_distancing_celeb(nbh_index)
+            disobey_chance = npc.get_trust() / 100
+            chance = random.randrange(0, 1)
+            if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                # People who are sickly and active want to stay in place
+                if npc.sickly or npc.active:
+                    for _ in range(9):
+                        npc.add_to_bag(NPC_ACTIONS.STAY)
             
     def process_moves(self):
         # Non-dead, non-zombie people
