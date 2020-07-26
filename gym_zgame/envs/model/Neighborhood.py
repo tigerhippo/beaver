@@ -38,7 +38,7 @@ class Neighborhood:
         self.fear = 0
         self.morale = 0
         self.trust = 0
-        
+
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
@@ -133,6 +133,13 @@ class Neighborhood:
     def raise_total_average_trust(self, increment):
         for person in NPCs:
             person.increment_trust(increment)
+    
+    #raises the entire neighborhood average for all three factors at once
+    def raise_total_average_allFactors(self, list):
+        for person in NPCs:
+            person.increment_fear(list[0])
+            person.increment_morale(list[1])
+            person.increment_trust(list[2])
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)

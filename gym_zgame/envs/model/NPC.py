@@ -158,17 +158,26 @@ class NPC:
     def set_trust(self, num):
         self.trust = num
 
+    #changes fear for an NPC object given the amount to change
     def increment_fear(self, increment):
         self.fear += increment
+    #changes morale for an NPC object given the amount to change
     def increment_morale(self, increment):
         self.morale += increment
+    #changes trust for an NPC object given the amount to change
     def increment_trust(self, increment):
         self.trust += increment
 
-    def increment_allfactors(self, list):
-        self.fear += list[0]
-        self.morale += list[1]
-        self.trust += list[2]
+    #def increment_allfactors(self, list):
+        #self.fear += list[0]
+        #self.morale += list[1]
+        #self.trust += list[2]
+
+    #increments for all three factors at once for an NPC object
+    def increment_allfactors(self, increment_fear, increment_morale, increment_trust):
+        self.fear += increment_fear
+        self.morale += increment_morale
+        self.trust += increment_trust
 
     def get_personality(self):
         return personality

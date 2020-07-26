@@ -835,6 +835,8 @@ class City:
             if npc.sickly or npc.active:
                 for _ in range(9):
                     npc.add_to_bag(NPC_ACTIONS.STAY)
+    
+    
 
     def process_moves(self):
         # Non-dead, non-zombie people
@@ -1196,6 +1198,53 @@ class City:
                 return None
         else:
             raise ValueError('Bad location passed into new location mapping.')
+        
+        @staticmethod
+        def karen_disobey(karen):
+            #50% chance they disobey
+            num = random.randint(0, 9)
+
+            if num < 5:
+
+                karen_neighborhood = Neighborhood() #MAYBE WE COULD PUT THIS INTO A SEPARATE METHOD
+                found_neighborhood = False
+                for neighborhood in self.neighborhoods:
+                    npcs = neighborhood.getNPCs() #we should make a getter for the NPC list
+                    for npc in npcs:
+                        if npc == karen: #checks if this NPC object is THIS Karen object
+                            karen_neighborhood = neighborhood
+                            found_neighborhood = True
+                            break
+                    if found_neighborhood == True:
+                        break
+
+                #karen_neigborhood = get_neighborhood_for_NPC(karen)
+                
+                npcs = karen_neighborhood.getNPCs()
+                for npc in npcs:
+                    if npc.personality.equals("normal"): #remember to use the getter
+                        npc.increment_allfactors(1, -1, -1)
+                    elif npc.personality.equals("nerd"):
+                        npc.increment_allfactors(1, -1, -1)
+                    elif npc.personality.equals("lunatic"):
+                        npc.increment_allfactors(0, 0, 0)
+                    elif npc.personality.equals("rebel"):
+                        npc.increment_allfactors(0, 0, 0)
+                    elif npc.personality.equals("coward"):
+                        npc.increment_allfactors(2, -2, -2)
+                    else:
+                        continue
+
+        #def get_neighborhood_for_NPC(self, npc):
+            #npc_neighborhood = Neighborhood()
+            #for neighborhood in self.neighborhoods:
+                #for person in neighborhood:
+                    #if person.equals(npc):
+                        #npc_neighborhood = neighborhood
+                        #break
+            #return npc_neighborhood
+
+            
 
 
 if __name__ == '__main__':

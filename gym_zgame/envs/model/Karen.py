@@ -28,5 +28,7 @@ class Karen(NPC):
             #because it only changes fear/morale/trust for this NPC object. We want to give all NPCs
             #an instance variable for which neighborhood they are in, which we can use to change fear/morale/trust
             #for all NPC objects in this neighborhood.
+        
+        #City.karen_disobey(self)
 
 
