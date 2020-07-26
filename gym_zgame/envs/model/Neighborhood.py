@@ -34,16 +34,10 @@ class Neighborhood:
         self.num_sickly = 0
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
-<<<<<<< HEAD
-        #1 represents Attribute object in Neighborhood class
-        self.atts = Attributes(1, 0, 0, 0)
-    
-=======
         #calculated by averaging the attributes of all residents in the neighborhood
         self.fear = 0
         self.morale = 0
         self.trust = 0
->>>>>>> 99c1f134a7ce53624ded4868e3db774d58f3ce81
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
@@ -154,6 +148,10 @@ class Neighborhood:
         num_moving = 0
         num_active = 0
         num_sickly = 0
+        fear = 0.0
+        trust = 0.0
+        morale = 0.0
+
         for npc in self.NPCs:
             if npc.state_dead is NPC_STATES_DEAD.ALIVE:
                 num_alive += 1
@@ -181,7 +179,9 @@ class Neighborhood:
                 num_active += 1
             if npc.sickly:
                 num_sickly += 1
-
+            fear += npc.get_data().get('fear')
+            morale += npc.get_data().get('morale')
+            trust += npc.get_data().get('trust')
         self.num_alive = num_alive
         self.num_dead = num_dead
         self.num_ashen = num_ashen
@@ -195,6 +195,11 @@ class Neighborhood:
         self.num_moving = num_moving
         self.num_active = num_active
         self.num_sickly = num_sickly
+        
+        #averages the attributes of all NPCs to get neighborhood attributes
+        self.fear = fear / num_npcs
+        self.morale = morale / num_npcs
+        trust = trust / num_npcs
 
         total_count_dead = self.num_alive + self.num_dead + self.num_ashen
         total_count_zombie = self.num_human + self.num_zombie_bitten + self.num_zombie

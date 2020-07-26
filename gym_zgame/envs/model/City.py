@@ -127,9 +127,9 @@ class City:
         return og_alive, og_dead
 
     def update_summary_stats(self):
-        fear = 0
-        morale = 0
-        trust = 0
+        fear = 0.0
+        morale = 0.0
+        trust = 0.0
         num_npcs = 0
         num_alive = 0
         num_dead = 0
@@ -165,9 +165,10 @@ class City:
             num_active += nbh_stats.get('num_active', 0)
             num_sickly += nbh_stats.get('num_sickly', 0)
 
-        self.fear = fear
-        self.morale = morale
-        self.trust = trust
+        self.fear = fear / len(self.neighborhoods)
+        self.morale = morale / len(self.neighborhoods)
+        self.trust = trust / len(self.neighborhoods)
+        #the above 3 are gotten by averaging the neighborhood attributes
         self.num_npcs = num_npcs
         self.num_alive = num_alive
         self.num_dead = num_dead
