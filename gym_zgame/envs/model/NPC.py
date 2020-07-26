@@ -27,14 +27,9 @@ class NPC:
         self.bag = []
         self.empty_bag()
         #default stats are from the "normal" personality
-<<<<<<< HEAD
-        #0 represents Attribute object in NPC class
-        self.atts = Attributes(0, 50, 50, 50)
-=======
         self.fear = 50
         self.trust = 50
         self.morale = 50
->>>>>>> 99c1f134a7ce53624ded4868e3db774d58f3ce81
         self.personality = "normal"
         self.percent = 0.5 #largest percent of population
         #self.neighborhood = 0

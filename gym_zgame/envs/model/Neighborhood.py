@@ -34,16 +34,11 @@ class Neighborhood:
         self.num_sickly = 0
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
-<<<<<<< HEAD
-        #1 represents Attribute object in Neighborhood class
-        self.atts = Attributes(1, 0, 0, 0)
-    
-=======
         #calculated by averaging the attributes of all residents in the neighborhood
         self.fear = 0
         self.morale = 0
         self.trust = 0
->>>>>>> 99c1f134a7ce53624ded4868e3db774d58f3ce81
+        
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
