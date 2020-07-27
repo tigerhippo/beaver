@@ -33,21 +33,12 @@ class Neighborhood:
         self.num_moving = 0
         self.num_active = 0
         self.num_sickly = 0
-<<<<<<< HEAD
-        self.update_summary_stats()
-        self.orig_alive, self.orig_dead = self._get_original_state_metrics()
-=======
->>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
         #calculated by averaging the attributes of all residents in the neighborhood
         self.fear = 0
         self.morale = 0
         self.trust = 0
-<<<<<<< HEAD
-
-=======
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
->>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
@@ -143,12 +134,12 @@ class Neighborhood:
         for person in NPCs:
             person.increment_trust(increment)
     
-    #raises the entire neighborhood average for all three factors at once
-    def raise_total_average_allFactors(self, list):
+    def raise_total_personalities(self, personality, fear, morale, trust):
         for person in NPCs:
-            person.increment_fear(list[0])
-            person.increment_morale(list[1])
-            person.increment_trust(list[2])
+            if person.get_personality() == personality:
+                person.increment_fear(fear)
+                person.increment_morale(morale)
+                person.increment_trust(trust)
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)
@@ -243,6 +234,7 @@ class Neighborhood:
         self.update_riot_status()
         
     def update_riot_status(self):
+        return False
         self.riot_status = False
         riot_chance = 0.1
         chance = random.randrange(0, 1)

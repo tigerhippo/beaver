@@ -120,23 +120,10 @@ class NPC:
     def increment_trust(self, increment):
         self.trust += increment
 
-<<<<<<< HEAD
-    #def increment_allfactors(self, list):
-        #self.fear += list[0]
-        #self.morale += list[1]
-        #self.trust += list[2]
-
-    #increments for all three factors at once for an NPC object
-    def increment_allfactors(self, increment_fear, increment_morale, increment_trust):
-        self.fear += increment_fear
-        self.morale += increment_morale
-        self.trust += increment_trust
-=======
     def increment_allfactors(self, fear, morale, trust):
         self.increment_fear(fear)
         self.increment_morale(morale)
         self.increment_trust(trust)
->>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
 
     def get_personality(self):
         return self.personality
