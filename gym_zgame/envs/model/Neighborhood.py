@@ -227,6 +227,7 @@ class Neighborhood:
         self.update_riot_status()
         
     def update_riot_status(self):
+        return False
         self.riot_status = False
         riot_chance = 0.1
         chance = random.randrange(0, 1)
