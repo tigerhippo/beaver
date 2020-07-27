@@ -133,6 +133,13 @@ class Neighborhood:
     def raise_total_average_trust(self, increment):
         for person in NPCs:
             person.increment_trust(increment)
+    
+    def raise_total_personalities(self, personality, fear, morale, trust):
+        for person in NPCs:
+            if person.get_personality() == personality:
+                person.increment_fear(fear)
+                person.increment_morale(morale)
+                person.increment_trust(trust)
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)
