@@ -123,7 +123,7 @@ class NPC:
         self.increment_trust(trust)
 
     def get_personality(self):
-        return personality
+        return self.personality
     
     #checks to make sure all the NPC's attributes are in the desired range, fixes them if not
     def check_attribute_bounds(self):

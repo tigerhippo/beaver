@@ -33,12 +33,12 @@ class Neighborhood:
         self.num_moving = 0
         self.num_active = 0
         self.num_sickly = 0
-        self.update_summary_stats()
-        self.orig_alive, self.orig_dead = self._get_original_state_metrics()
         #calculated by averaging the attributes of all residents in the neighborhood
         self.fear = 0
         self.morale = 0
         self.trust = 0
+        self.update_summary_stats()
+        self.orig_alive, self.orig_dead = self._get_original_state_metrics()
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
@@ -122,19 +122,6 @@ class Neighborhood:
         self.deployments.extend(deployments)
     def destroy_deployments_by_type(self, dep_types):
         self.deployments = [dep for dep in self.deployments if dep not in dep_types]
-    
-    def get_riot_status(self):
-        return self.riot_status
-
-    def update_riot_status(self):
-        self.riot_status = False
-        riot_chance = 0.1
-        chance = random.randrange(0, 1)
-        if self.trust < 20.0 and chance < riot_chance:
-            for npc in self.NPCs:
-                if npc.get_personality():
-                    self.riot_status = True
-                    break
 
     #raises the entire neighborhood average by adding the intended average increase to each person in the neighborhood
     def raise_total_average_fear(self, increment):
@@ -162,6 +149,13 @@ class Neighborhood:
         num_moving = 0
         num_active = 0
         num_sickly = 0
+        #re-counts personalities
+        normal = 0
+        karen = 0
+        nerd = 0
+        lunatic = 0
+        rebel = 0
+        coward = 0
         for npc in self.NPCs:
             if npc.state_dead is NPC_STATES_DEAD.ALIVE:
                 num_alive += 1
@@ -189,6 +183,18 @@ class Neighborhood:
                 num_active += 1
             if npc.sickly:
                 num_sickly += 1
+            if npc.get_personality() == 'normal':
+                normal += 1
+            if npc.get_personality() == 'karen':
+                karen += 1
+            if npc.get_personality() == 'nerd':
+                nerd += 1
+            if npc.get_personality() == 'lunatic':
+                lunatic += 1
+            if npc.get_personality() == 'rebel':
+                rebel += 1
+            if npc.get_personality() == 'coward':
+                coward += 1
 
         self.num_alive = num_alive
         self.num_dead = num_dead
@@ -204,6 +210,13 @@ class Neighborhood:
         self.num_active = num_active
         self.num_sickly = num_sickly
 
+        self.breakdown['normal'] = normal
+        self.breakdown['karen'] = karen
+        self.breakdown['nerd'] = nerd
+        self.breakdown['lunatic'] = lunatic
+        self.breakdown['rebel'] = rebel
+        self.breakdown['coward'] = coward
+
         total_count_dead = self.num_alive + self.num_dead + self.num_ashen
         total_count_zombie = self.num_human + self.num_zombie_bitten + self.num_zombie
         total_count_flu = self.num_healthy + self.num_incubating + self.num_flu + self.num_immune
@@ -212,6 +225,18 @@ class Neighborhood:
         assert (self.num_npcs == total_count_flu)
         
         self.update_riot_status()
+        
+    def update_riot_status(self):
+        self.riot_status = False
+        riot_chance = 0.1
+        chance = random.randrange(0, 1)
+        if self.trust < 20.0 and chance < riot_chance:
+            for npc in self.NPCs:
+                if self.breakdown.get('rebel') > 0:
+                    self.riot_status = True
+                    break
+    def get_riot_status(self):
+        return self.riot_status
 
     def get_data(self):
         #added breakdown and atts data
@@ -239,18 +264,8 @@ class Neighborhood:
                              'original_alive': self.orig_alive,
                              'original_dead': self.orig_dead,
                              'deployments': self.deployments,
-                             'breakdown': self.breakdown,
-                             'atts': self.atts}
+                             'breakdown': self.breakdown,}
         return neighborhood_data
-
-    #added setter
-    def set_breakdown(self, breakdown):
-        self.breakdown = breakdown
-    
-    #added setter
-    def set_atts(self, atts):
-        self.atts = atts
-
 
 if __name__ == '__main__':
     nb = Neighborhood('CENTER', LOCATIONS.CENTER, (LOCATIONS.N, LOCATIONS.S, LOCATIONS.W, LOCATIONS.E), 10)
