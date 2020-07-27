@@ -46,6 +46,7 @@ class City:
         self.num_moving = 0
         self.num_active = 0
         self.num_sickly = 0
+        self.mutation_status = {'none': False, 'faster': False, 'slower': False, 'stronger': False, 'weaker': False}
         self.update_summary_stats()
 
     def _init_neighborhoods(self, loc_npc_range):

@@ -7,16 +7,7 @@ class Nerd(NPC):
         self.morale = 50
         self.trust = 60
         self.personality = "nerd"
-        self.mutation = Mutation() #creates new mutation object
-        #SHOULD WE MAKE IT SO THAT A MUTATION OBJECT IS CREATED IN A CLASS FOR ALL NERDS
-        #SO THAT ONE MUTATION OCCURS INSTEAD OF HAVING THE CHANCE OF GETTING FIVE MUTATIONS FOR FIVE NERDS
         #self.percent = 0.05 #5th largest percent of population
-    
-    def _getMutation_(self):
-        return self.mutation
-
-    def _setMutation_(self, mutation):
-        self.mutation = mutation
 
     #may research to try and find a cure
     def _research_(self):
