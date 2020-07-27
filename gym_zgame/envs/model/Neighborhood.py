@@ -134,6 +134,13 @@ class Neighborhood:
         for person in NPCs:
             person.increment_trust(increment)
     
+    #raises the entire neighborhood average for all three factors at once
+    def raise_total_average_allFactors(self, fear, morale, trust):
+        for person in NPCs:
+            person.increment_fear(fear)
+            person.increment_morale(morale)
+            person.increment_trust(trust)
+    #same thing but for a specified personality
     def raise_total_personalities(self, personality, fear, morale, trust):
         for person in NPCs:
             if person.get_personality() == personality:
@@ -272,7 +279,12 @@ class Neighborhood:
                              'original_alive': self.orig_alive,
                              'original_dead': self.orig_dead,
                              'deployments': self.deployments,
-                             'breakdown': self.breakdown,}
+                             'normal': self.breakdown['normal'],
+                             'karen': self.breakdown['karen'],
+                             'nerd': self.breakdown['nerd'],
+                             'lunatic': self.breakdown['lunatic'],
+                             'rebel': self.breakdown['rebel'],
+                             'coward': self.breakdown['coward']}
         return neighborhood_data
 
 if __name__ == '__main__':

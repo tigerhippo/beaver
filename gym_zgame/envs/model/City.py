@@ -5,7 +5,6 @@ import pyfiglet as pf
 from gym_zgame.envs.Print_Colors.PColor import PBack, PFore, PFont, PControl
 from gym_zgame.envs.model.Neighborhood import Neighborhood
 from gym_zgame.envs.model.NPC import NPC
-from gym_zgame.envs.model.Mutations import Mutations
 from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS, DEPLOYMENTS
 from gym_zgame.envs.enums.NPC_STATES import NPC_STATES_DEAD, NPC_STATES_ZOMBIE, NPC_STATES_FLU
 from gym_zgame.envs.enums.NPC_ACTIONS import NPC_ACTIONS
@@ -488,25 +487,18 @@ class City:
             roll_mutation = random.randint(0, 7)
             if roll_mutation == 0 and self.mutation_status['faster'] == False:
                 self.mutation_status['faster'] = True
-                
             elif roll_mutation == 1 and self.mutation_status['slower'] == False:
                 self.mutation_status['slower'] = True
-
             elif roll_mutation == 2 and self.mutation_status['lethality up'] == False:
                 self.mutation_status['lethality up'] = True
-
             elif roll_mutation == 3 and self.mutation_status['lethality down'] == False:
                 self.mutation_status['lethality down'] = True
-
             elif roll_mutation == 4 and self.mutation_status['hinder cure'] == False:
                 self.mutation_status['hinder cure'] = True
-
             elif roll_mutation == 5 and self.mutation_status['hinder vaccine'] == False:
                 self.mutation_status['hinder vaccine'] = True
-
             elif roll_mutation == 6 and self.mutation_status['reverse immunity'] == False:
                 self.mutation_status['reverse immunity'] = True
-
         #certain mutations will cancel each other out
         if self.mutation_status['faster'] and self.mutation_status['slower']:
             self.mutation_status['faster'] = False
@@ -1344,53 +1336,6 @@ class City:
                 return None
         else:
             raise ValueError('Bad location passed into new location mapping.')
-        
-        @staticmethod
-        def karen_disobey(karen):
-            #50% chance they disobey
-            num = random.randint(0, 9)
-
-            if num < 5:
-
-                karen_neighborhood = Neighborhood() #MAYBE WE COULD PUT THIS INTO A SEPARATE METHOD
-                found_neighborhood = False
-                for neighborhood in self.neighborhoods:
-                    npcs = neighborhood.getNPCs() #we should make a getter for the NPC list
-                    for npc in npcs:
-                        if npc == karen: #checks if this NPC object is THIS Karen object
-                            karen_neighborhood = neighborhood
-                            found_neighborhood = True
-                            break
-                    if found_neighborhood == True:
-                        break
-
-                #karen_neigborhood = get_neighborhood_for_NPC(karen)
-                
-                npcs = karen_neighborhood.getNPCs()
-                for npc in npcs:
-                    if npc.personality.equals("normal"): #remember to use the getter
-                        npc.increment_allfactors(1, -1, -1)
-                    elif npc.personality.equals("nerd"):
-                        npc.increment_allfactors(1, -1, -1)
-                    elif npc.personality.equals("lunatic"):
-                        npc.increment_allfactors(0, 0, 0)
-                    elif npc.personality.equals("rebel"):
-                        npc.increment_allfactors(0, 0, 0)
-                    elif npc.personality.equals("coward"):
-                        npc.increment_allfactors(2, -2, -2)
-                    else:
-                        continue
-
-        #def get_neighborhood_for_NPC(self, npc):
-            #npc_neighborhood = Neighborhood()
-            #for neighborhood in self.neighborhoods:
-                #for person in neighborhood:
-                    #if person.equals(npc):
-                        #npc_neighborhood = neighborhood
-                        #break
-            #return npc_neighborhood
-
-            
 
 if __name__ == '__main__':
     city = City()
