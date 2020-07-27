@@ -95,27 +95,67 @@ class City:
                               north_east, north_west, south_east, south_west]
 
     def _init_neighborhood_threats(self):
-        # Add 10 dead in a random location
+        # Add 10 dead in a random location (10 dead NO LONGER TRUE)
         dead_loc_index = random.choice(range(len(self.neighborhoods)))
         dead_loc = self.neighborhoods[dead_loc_index]
         dead_npcs = []
-        for _ in range(10):
+
+        #generate a random number of dead people - could be zero
+        num = random.randint(0, 10)  
+        for _ in range(num):
+            if num == 0:
+                break
             dead_npc = NPC()
             dead_npc.change_dead_state(NPC_STATES_DEAD.DEAD)
             dead_npcs.append(dead_npc)
         dead_loc.add_NPCs(dead_npcs)
-        dead_loc.orig_dead += 10
+        dead_loc.orig_dead += num
 
-        # Add 1 zombie in a random location
-        zombie_loc = random.choice(self.neighborhoods)
-        zombie_npc = NPC()
-        zombie_npc.change_zombie_state(NPC_STATES_ZOMBIE.ZOMBIE)
-        zombie_loc.add_NPC(zombie_npc)
-        # Add 1 flue incubating at each location
-        for nbh in self.neighborhoods:
+        # Add 1 zombie in a random location (1 zombie NO LONGER TRUE)
+        zombie_loc_index = random.choice(range(len(self.neighborhoods)))
+        zombie_loc = self.neighborhoods[zombie_loc_index]
+        zombie_npcs = []
+
+        #generate a random number of zombies - could be zero
+        num = random.randint(0, 10)
+        for _ in range(num):
+            if num == 0:
+                break
+            zombie_npc = NPC()
+            zombie_npc.change_zombie_state(NPC_STATES_ZOMBIE.ZOMBIE)
+            zombie_npcs.append(zombie_npc)
+        zombie_loc.add_NPCs(zombie_npcs)
+        zombie_loc.orig_zombie += num
+
+        # Add 1 flu incubating at each location (1 flu NO LONGER TRUE)
+
+        flu_loc_index = random.choice(range(len(self.neighborhoods)))
+        flu_loc = self.neighborhoods[flu_loc_index]
+        flu_npcs = []
+
+        #generate a random number of flu incubations - could be zero
+        num = random.randint(0, 10)
+        for _ in range(num):
+            if num == 0:
+                break
             flu_npc = NPC()
-            flu_npc.change_flu_state(NPC_STATES_FLU.INCUBATING)
-            nbh.add_NPC(flu_npc)
+            flu_npc.change_flu_state(NPC_STATES_FLU.FLU)
+            flu_npcs.append(flu_npc)
+        flu_loc.add_NPCs(flu_npcs)
+        flu_loc.orig_flu += num
+
+        dead_zombie_flu = [] #QUIET CASES - stores three booleans which represent whether there are no dead, no zombies, and/or no flu 
+        if len(dead_npcs) == 0:
+            no_dead = True
+            dead_zombie_flu.append(no_dead)
+        if len(zombie_npcs) == 0:
+            no_zombies = True
+            dead_zombie_flu.append(no_zombies)
+        if len(flu_npcs) == 0:
+            no_flu = True
+            dead_zombie_flu.append(no_flu)
+        
+        return dead_zombie_flu
 
     def _get_original_state_metrics(self):
         og_alive = 0
@@ -127,9 +167,9 @@ class City:
         return og_alive, og_dead
 
     def update_summary_stats(self):
-        fear = 0
-        morale = 0
-        trust = 0
+        fear = 0.0
+        morale = 0.0
+        trust = 0.0
         num_npcs = 0
         num_alive = 0
         num_dead = 0
@@ -165,9 +205,10 @@ class City:
             num_active += nbh_stats.get('num_active', 0)
             num_sickly += nbh_stats.get('num_sickly', 0)
 
-        self.fear = fear
-        self.morale = morale
-        self.trust = trust
+        self.fear = fear / len(self.neighborhoods)
+        self.morale = morale / len(self.neighborhoods)
+        self.trust = trust / len(self.neighborhoods)
+        #the above 3 are gotten by averaging the neighborhood attributes
         self.num_npcs = num_npcs
         self.num_alive = num_alive
         self.num_dead = num_dead
@@ -211,8 +252,112 @@ class City:
 
     def _add_buildings_to_locations(self, nbh_1_index, dep_1, nbh_2_index, dep_2):
         # Update the list of deployments at that location
-        self.neighborhoods[nbh_1_index].add_deployment(dep_1)
-        self.neighborhoods[nbh_2_index].add_deployment(dep_2)
+        if self.neighborhoods[nbh_1_index].get_riot_status() == False:
+            self.neighborhoods[nbh_1_index].add_deployment(dep_1)
+            self.change_attributes_deployments(self.neighborhoods[nbh_1_index], dep_1)
+        else:
+            print('neighborhood 1 has an ongoing riot! action failed')
+        if self.neighborhoods[nbh_2_index].get_riot_status() == False:
+            self.neighborhoods[nbh_2_index].add_deployment(dep_2)
+            self.change_attributes_deployments(self.neighborhoods[nbh_2_index])
+        else:
+            print('neighborhood 2 has an ongoing riot! action failed')
+    @staticmethod
+    def change_attributes_deployments(self, nbh, dep):
+        #makes the relevant attribute changes upon building a deployment happen
+        fear_increment = 0
+        morale_increment = 0
+        trust_increment = 0
+        for dep in nbh.deployments:
+                if dep is QUARANTINE_OPEN:
+                    fear_increment += 5
+                if dep is QUARANTINE_FENCED:
+                    fear_increment += 1
+                if dep is BITE_CENTER_DISINFECT:
+                    fear_increment -= 5
+                    morale_increment += 5
+                    trust_increment += 2.5
+                if dep is BITE_CENTER_AMPUTATE:
+                    fear_increment -= 2.5
+                    morale_increment += 5
+                    trust_increment += 1.25
+                if dep is Z_CURE_CENTER_FDA:
+                    fear_increment -= 10
+                    morale_increment += 10
+                    trust_increment += 5
+                if dep is Z_CURE_CENTER_EXP:
+                    fear_increment -= 5
+                    morale_increment += 10
+                    trust_increment += 2.5
+                if dep is FLU_VACCINE_OPT:
+                    fear_increment -= 10
+                    morale_increment += 10
+                    trust_increment += 10
+                if dep is FLU_VACCINE_MAN:
+                    fear_increment += 5
+                    morale_increment += 10
+                    trust_increment -= 5
+                if dep is KILN_OVERSIGHT:
+                    fear_increment -= 5
+                    morale_increment += 2.5
+                    trust_increment += 5
+                if dep is KILN_NO_QUESTIONS:
+                    fear_increment += 10
+                    morale_increment -= 2.5
+                    trust_increment -= 10
+                if dep is BROADCAST_DONT_PANIC:
+                    fear_increment -= 10
+                    morale_increment += 10
+                    trust_increment -= 10
+                if dep is BROADCAST_CALL_TO_ARMS:
+                    fear_increment -= 25
+                    morale_increment += 25
+                    trust_increment -= 25
+                if dep is SNIPER_TOWER_CONFIRM:
+                    fear_increment += 5
+                    morale_increment += 5
+                    trust_increment += 5
+                if dep is SNIPER_TOWER_FREE:
+                    fear_increment += 10
+                    morale_increment -= 10
+                    trust_increment -= 10
+                if dep is PHEROMONES_BRAINS:
+                    fear_increment -= 10
+                    morale_increment -= 10
+                    trust_increment += 10
+                if dep is PHEROMONES_MEAT:
+                    fear_increment -= 25
+                    morale_increment += 10
+                    trust_increment -= 25
+                if dep is BSL4_LAB_SAFETY_ON:
+                    morale_increment += 10
+                if dep is BSL4_LAB_SAFETY_OFF:
+                    trust_increment -= 25
+                if dep is RALLY_POINT_OPT:
+                    morale_increment += 5
+                    trust_increment += 5
+                if dep is RALLY_POINT_FULL:
+                    fear_increment += 19
+                    trust_increment -= 10
+                if dep is FIREBOMB_PRIMED:
+                    fear_increment += 25
+                    morale_increment -= 25
+                    trust_increment -= 25
+                if dep is FIREBOMB_BARRAGE:
+                    fear_increment += 25
+                    morale_increment -= 25
+                    trust_increment -= 25
+                if dep is SOCIAL_DISTANCING_SIGNS:
+                    fear_increment += 5
+                    morale_increment -= 5
+                    trust_increment += 5
+                if dep is SOCIAL_DISTANCING_CELEBRITY:
+                    fear_increment -= 5
+                    morale_increment += 5
+                    trust_increment += 10
+        nbh.raise_total_average_fear(fear_increment)
+        nbh.raise_total_average_morale(morale_increment)
+        nbh.raise_total_average_trust(trust_increment)
 
     def update_states(self):
         self._update_trackers()
@@ -222,7 +367,7 @@ class City:
 
     @staticmethod
     def determine_increment_resources(self):
-        # Update resource increments
+        # Update resource increments for per-turn deployments
         resource_cost_per_turn = 0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
@@ -231,41 +376,40 @@ class City:
                 # deployments not included do not have fear or resources costs
                 if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
+                if dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.FLU_VACCINE_MAN:
+                if dep is DEPLOYMENTS.FLU_VACCINE_MAN:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.PHEROMONES_MEAT:
+                if dep is DEPLOYMENTS.PHEROMONES_MEAT:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
+                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
                     if nbh.num_active >= 5:
                         nbh_cost -= 1
-                elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
+                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
                     nbh_cost -= 2
-                elif dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
+                if dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
                     nbh_cost += 1
-                elif dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
+                if dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
                     nbh_cost += 1
             #applies the morale or high fear resource increase/decrease
             nbh_cost *= determine_resource_discount(self, nbh, nbh_cost)
             resource_cost_per_turn += nbh_cost
         return resource_cost_per_turn
-    
     @staticmethod
     def determine_resource_discount(self, nbh, og_cost):
         #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
         discount = 0.0
-        if nbh.get_fear() > 80:
+        if nbh.get_data().get('fear') > 80:
             discount *= 1.5
-        elif nbh.get_fear() > 60:
+        elif nbh.get_data().get('fear') > 60:
             discount *= 1.25
-        if nbh.get_morale() > 80:
+        if nbh.get_data().get('morale') > 80:
             discount *= 0.5
-        elif nbh.get_morale() > 60:
+        elif nbh.get_data().get('morale') > 60:
             discount *= 0.75
-        elif nbh.get_morale() < 20:
+        elif nbh.get_data().get('morale') < 20:
             discount *= 1.5
-        elif nbh.get_morale() < 40:
+        elif nbh.get_data().get('morale') < 40:
             discount += 1.25
         return discount
 
@@ -280,7 +424,7 @@ class City:
         for nbh in self.neighborhoods:
             nbh.destroy_deployments_by_type(self.UPKEEP_DEPS)
 
-    #FOR NOW ONLY FOR DEPLOYMENTS + PASSIVE PER-TURN INCREASES (will add other sources later)
+    #FOR NOW ONLY FOR PASSIVE PER-TURN INCREASES (will add other sources later)
     @staticmethod
     def update_attributes(self):
         for nbh_index in range(len(self.neighborhoods)):
@@ -288,10 +432,6 @@ class City:
             fear_increment = 0
             morale_increment = 0
             trust_increment = 0
-            for dep in nbh.deployments:
-                if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
-                    fear_increment += 5
-                #just wanted to get basic structure down for now
             #passive increment for every turn
             if(nbh.get_data()["num_zombie"] > nbh.get_data()["num.alive"] / 2): #we can change threshold later
                 fear_increment += 10
@@ -328,19 +468,19 @@ class City:
         total_fear = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
-            total_fear += nbh.get_fear()
+            total_fear += nbh.get_data().get('fear')
         return total_fear / len(self.neighborhoods)
     def _calculate_city_morale(self):
         total_morale = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
-            total_morale += nbh.get_morale()
+            total_morale += nbh.get_data().get('morale')
         return total_morale / len(self.neighborhoods)
     def _calculate_city_trust(self):
         total_trust = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
-            total_trust += nbh.get_trust()
+            total_trust += nbh.get_data().get('trust')
         return total_trust / len(self.neighborhoods)
         
     def _update_artificial_states(self,):
@@ -403,7 +543,6 @@ class City:
             if (npc.state_flu is not NPC_STATES_FLU.IMMUNE) and (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE):
                 if random.random() <= vaccine_success:
                     npc.change_flu_state(NPC_STATES_FLU.IMMUNE)
-
     def _art_trans_flu_vaccine_man(self, nbh_index):
         nbh = self.neighborhoods[nbh_index]
         vaccine_success = 0.5
@@ -435,7 +574,6 @@ class City:
             if npc.state_zombie is NPC_STATES_ZOMBIE.ZOMBIE:
                 if random.random() <= zombie_shot_prob:
                     npc.change_dead_state(NPC_STATES_DEAD.DEAD)
-
     def _art_trans_sniper_tower_free(self, nbh_index):
         nbh = self.neighborhoods[nbh_index]
         zombie_shot_prob = 1 / nbh.num_moving if nbh.num_moving > 0 else 0
@@ -626,16 +764,13 @@ class City:
                         npc.add_to_bag(npc_action)
 
     def adjust_bags_for_deployments(self):
-        for nbh_index in range(len(self.neighborhoods)):
-            nbh = self.neighborhoods[nbh_index]
-            if DEPLOYMENTS.QUARANTINE_OPEN in nbh.deployments:
-                self._bag_adjust_quarantine_open(nbh_index)
-            if DEPLOYMENTS.QUARANTINE_FENCED in nbh.deployments:
-                self._bag_adjust_quarantine_fenced(nbh_index)
+        for nbh in self.neighborhoods:
             if DEPLOYMENTS.PHEROMONES_BRAINS in nbh.deployments:
                 self._bag_adjust_pheromones_brains(nbh_index)
             if DEPLOYMENTS.PHEROMONES_MEAT in nbh.deployments:
                 self._bag_adjust_pheromones_meat(nbh_index)
+            if (DEPLOYMENTS.QUARANTINE_OPEN in nbh.deployments) or (DEPLOYMENTS.QUARANTINE_FENCED in nbh.deployments):
+                self._bag_adjust_quarantine(nbh_index)
             if DEPLOYMENTS.RALLY_POINT_OPT in nbh.deployments:
                 self._bag_adjust_rally_point_opt(nbh_index)
             if DEPLOYMENTS.RALLY_POINT_FULL in nbh.deployments:
@@ -645,52 +780,7 @@ class City:
             if DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY in nbh.deployments:
                 self._bag_adjust_social_distancing_celeb(nbh_index)
 
-    def _bag_adjust_quarantine_open(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
-        for npc in nbh.NPCs:
-            # push out active people
-            if npc.active:
-                for npc_action in nbh.adj_locations.values():
-                    for _ in range(3):
-                        npc.add_to_bag(npc_action)
-            # sick people here tend to stay
-            if npc.sickly:
-                for _ in range(10):
-                    npc.add_to_bag(NPC_ACTIONS.STAY)
-        # Pull in sickly people for adj neighborhoods
-        for loc, npc_action in nbh.adj_locations.items():
-            inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
-            for temp_nbh in self.neighborhoods:
-                if temp_nbh.location is loc:
-                    for npc in temp_nbh.NPCs:
-                        if npc.sickly:
-                            for _ in range(10):
-                                npc.add_to_bag(inward_npc_action)
-
-    def _bag_adjust_quarantine_fenced(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
-        for npc in nbh.NPCs:
-            # push out active people
-            if npc.active:
-                for npc_action in nbh.adj_locations.values():
-                    for _ in range(3):
-                        npc.add_to_bag(npc_action)
-            # sick people here tend to stay
-            if npc.sickly:
-                for _ in range(10):
-                    npc.add_to_bag(NPC_ACTIONS.STAY)
-        # Pull in sickly people for adj neighborhoods
-        for loc, npc_action in nbh.adj_locations.items():
-            inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
-            for temp_nbh in self.neighborhoods:
-                if temp_nbh.location is loc:
-                    for npc in temp_nbh.NPCs:
-                        if npc.sickly:
-                            for _ in range(10):
-                                npc.add_to_bag(inward_npc_action)
-
-    def _bag_adjust_pheromones_brains(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+    def _bag_adjust_pheromones_brains(self, nbh):
         # Some NPCs want to stay here because of the pheromones
         for npc in nbh.NPCs:
             # Zombies want to stay even more
@@ -715,9 +805,7 @@ class City:
                         if npc.state_zombie is NPC_STATES_ZOMBIE.ZOMBIE_BITTEN:
                             for _ in range(1):
                                 npc.add_to_bag(inward_npc_action)
-
-    def _bag_adjust_pheromones_meat(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+    def _bag_adjust_pheromones_meat(self, nbh):
         # Some NPCs want to stay here because of the pheromones
         for npc in nbh.NPCs:
             # Zombies want to stay even more
@@ -751,51 +839,93 @@ class City:
                             for _ in range(1):
                                 npc.add_to_bag(inward_npc_action)
 
-    def _bag_adjust_rally_point_opt(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+    def _bag_adjust_quarantine(self, nbh):
+        for npc in nbh.NPCs:
+            disobey_chance = npc.get_trust() / 100
+            chance = random.randrange(0, 1)
+            if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                # push out active people
+                if npc.active:
+                    for npc_action in nbh.adj_locations.values():
+                        for _ in range(3):
+                            npc.add_to_bag(npc_action)
+                # sick people here tend to stay
+                if npc.sickly:
+                    for _ in range(10):
+                        npc.add_to_bag(NPC_ACTIONS.STAY)
+        # Pull in sickly people for adj neighborhoods
+        for loc, npc_action in nbh.adj_locations.items():
+            inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
+            for temp_nbh in self.neighborhoods:
+                if temp_nbh.location is loc:
+                    for npc in temp_nbh.NPCs:
+                        disobey_chance = npc.get_trust() / 100
+                        chance = random.randrange(0, 1)
+                        if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                            if npc.sickly:
+                                for _ in range(10):
+                                    npc.add_to_bag(inward_npc_action)
+
+    def _bag_adjust_rally_point_opt(self, nbh):
         # Pull in people for adj neighborhoods
         for loc, npc_action in nbh.adj_locations.items():
             inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
             for temp_nbh in self.neighborhoods:
                 if temp_nbh.location is loc:
                     for npc in temp_nbh.NPCs:
-                        # Sometimes people listen
-                        if npc.active:
-                            for _ in range(3):
-                                npc.add_to_bag(inward_npc_action)
-
-    def _bag_adjust_rally_point_full(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+                        disobey_chance = npc.get_trust() / 100
+                        chance = random.randrange(0, 1)
+                        if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                            # Sometimes people listen
+                            if npc.active:
+                                for _ in range(3):
+                                    npc.add_to_bag(inward_npc_action)
+    def _bag_adjust_rally_point_full(self, nbh):
         # Pull in people for adj neighborhoods
         for loc, npc_action in nbh.adj_locations.items():
             inward_npc_action = NPC_ACTIONS.reverse_action(npc_action)
             for temp_nbh in self.neighborhoods:
                 if temp_nbh.location is loc:
                     for npc in temp_nbh.NPCs:
-                        # Sometimes people listen
-                        if (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE) or \
-                                (npc.state_dead is not NPC_STATES_DEAD.DEAD):
-                            for _ in range(10):
-                                npc.add_to_bag(inward_npc_action)
+                        disobey_chance = npc.get_trust() / 100
+                        chance = random.randrange(0, 1)
+                        if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                            # Sometimes people listen
+                            if (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE) or (npc.state_dead is not NPC_STATES_DEAD.DEAD):
+                                for _ in range(10):
+                                    npc.add_to_bag(inward_npc_action)
 
-    def _bag_adjust_social_distancing_signs(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+    def _bag_adjust_social_distancing_signs(self, nbh):
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
-            # People who are sickly and active want to stay in place
-            if npc.sickly or npc.active:
-                for _ in range(2):
-                    npc.add_to_bag(NPC_ACTIONS.STAY)
-
-    def _bag_adjust_social_distancing_celeb(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
+            disobey_chance = npc.get_trust() / 100
+            chance = random.randrange(0, 1)
+            if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                # People who are sickly and active want to stay in place
+                if npc.sickly or npc.active:
+                    for _ in range(2):
+                        npc.add_to_bag(NPC_ACTIONS.STAY)
+    def _bag_adjust_social_distancing_celeb(self, nbh):
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
+<<<<<<< HEAD
             # People who are sickly and active want to stay in place
             if npc.sickly or npc.active:
                 for _ in range(9):
                     npc.add_to_bag(NPC_ACTIONS.STAY)
+    
+    
 
+=======
+            disobey_chance = npc.get_trust() / 100
+            chance = random.randrange(0, 1)
+            if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
+                # People who are sickly and active want to stay in place
+                if npc.sickly or npc.active:
+                    for _ in range(9):
+                        npc.add_to_bag(NPC_ACTIONS.STAY)
+            
+>>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
     def process_moves(self):
         # Non-dead, non-zombie people
         self._normal_moves()
@@ -951,8 +1081,8 @@ class City:
         # Include global stats
         global_stats = PBack.purple + '#####################################  GLOBAL STATUS  ######################################' + PBack.reset + '\n'
         global_stats += ' Turn: {0} of {1}'.format(self.turn, self.max_turns).ljust(42) +'\n'
-        global_stats += ' Global Fear: {}'.format(self.fear).ljust(42) + ' Morale: {}'.format(self.morale).ljust(42) + ' Trust: {}'.format(self.trust).ljust(42) + '\n'
-        global_stats += ' Resources: {}'.format(self.resources).ljust(42) + 'Dead at Start: {}'.format(self.orig_dead) + 'Living at Start: {}'.format(self.orig_alive) + '\n'
+        global_stats += ' Global Fear: {}'.format(self.fear).ljust(42) + 'Morale: {}'.format(self.morale).ljust(42) + 'Trust: {}'.format(self.trust) + '\n'
+        global_stats += ' Resources: {}'.format(self.resources).ljust(42) + ' Dead at Start: {}'.format(self.orig_dead).ljust(42) + ' Living at Start: {}'.format(self.orig_alive) + '\n'
         global_stats += PBack.purple + '############################################################################################' + PBack.reset + '\n'
         fancy_string += global_stats
 
@@ -1156,6 +1286,53 @@ class City:
                 return None
         else:
             raise ValueError('Bad location passed into new location mapping.')
+        
+        @staticmethod
+        def karen_disobey(karen):
+            #50% chance they disobey
+            num = random.randint(0, 9)
+
+            if num < 5:
+
+                karen_neighborhood = Neighborhood() #MAYBE WE COULD PUT THIS INTO A SEPARATE METHOD
+                found_neighborhood = False
+                for neighborhood in self.neighborhoods:
+                    npcs = neighborhood.getNPCs() #we should make a getter for the NPC list
+                    for npc in npcs:
+                        if npc == karen: #checks if this NPC object is THIS Karen object
+                            karen_neighborhood = neighborhood
+                            found_neighborhood = True
+                            break
+                    if found_neighborhood == True:
+                        break
+
+                #karen_neigborhood = get_neighborhood_for_NPC(karen)
+                
+                npcs = karen_neighborhood.getNPCs()
+                for npc in npcs:
+                    if npc.personality.equals("normal"): #remember to use the getter
+                        npc.increment_allfactors(1, -1, -1)
+                    elif npc.personality.equals("nerd"):
+                        npc.increment_allfactors(1, -1, -1)
+                    elif npc.personality.equals("lunatic"):
+                        npc.increment_allfactors(0, 0, 0)
+                    elif npc.personality.equals("rebel"):
+                        npc.increment_allfactors(0, 0, 0)
+                    elif npc.personality.equals("coward"):
+                        npc.increment_allfactors(2, -2, -2)
+                    else:
+                        continue
+
+        #def get_neighborhood_for_NPC(self, npc):
+            #npc_neighborhood = Neighborhood()
+            #for neighborhood in self.neighborhoods:
+                #for person in neighborhood:
+                    #if person.equals(npc):
+                        #npc_neighborhood = neighborhood
+                        #break
+            #return npc_neighborhood
+
+            
 
 
 if __name__ == '__main__':

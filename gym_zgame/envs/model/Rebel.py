@@ -7,7 +7,8 @@ class Rebel(NPC):
         self.morale = 50
         self.trust = 40
         self.personality = "rebel"
-        # self.percent = 0.1 3rd largest percent of population
+<<<<<<< HEAD
+        #self.percent = 0.1 #3rd largest percent of population
 
     def __str__(self):
         percentage = Rebel.pop_percent * 100
@@ -30,15 +31,24 @@ class Rebel(NPC):
         #20% chance of starting a riot
         num = random.randint(0, 9)
 
-        #riot_occurred = False
+        riot_occurred = False
         if num < 2:
             addFear_by = 5
             addTrust_by = -5
             addMorale_by = -5
             factors = [addFear_by, addTrust_by, addMorale_by] 
             self.atts.change_allfactors(factors)
-            #riot_occurred = True
+            riot_occurred = True
             #necessary to tell another class that the riot makes people unable to move in/out of that neighborhood 
             #and no deployments can be placed there - for a certain number of turns
         
-        #return riot_occurred
+        return riot_occurred
+=======
+        # self.percent = 0.1 3rd largest percent of population
+    
+    def increment_trust(self, increment):
+        if increment < 0:
+            self.trust += increment * 1.5
+        else:
+            super.increment_trust(increment)
+>>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70

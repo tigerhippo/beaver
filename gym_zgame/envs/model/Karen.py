@@ -1,16 +1,18 @@
 from gym_zgame.envs.model.NPC import NPC
+
 #subclass - for people with Karen personality
 class Karen(NPC):
     def __init__(self):
         super().__init__()
+        self.fear = 50
+        self.morale = 50
+        self.trust = 50
         self.personality = "karen"
 <<<<<<< HEAD
-        self.percent = 0.25 #2nd largest percent of population
-=======
-        # self.percent = 0.25
->>>>>>> 99c1f134a7ce53624ded4868e3db774d58f3ce81
+        #self.percent = 0.25 2nd largest percent of population
 
-    def __str__(self):
+    #returns all data for this object in a neat, clear format
+    def __str__(self): 
         percentage = Karen.pop_percent * 100
         return "This person is of personality type " + Karen.type_name + ", has a fear level of " + str(self.fear) + ", " + "a trust level of " + str(self.trust) + ", " + "and a morale level of " + str(self.morale) + ", and accounts for " + str(percentage) + "% of the population."
     
@@ -25,8 +27,13 @@ class Karen(NPC):
             addTrust_by = 0 #neither increases nor decreases fear for this neighborhood - fear stays the same
             factors = [addFear_by, addTrust_by, addMorale_by] #list stores all variables for conveniency - these variables will be used very often
             self.atts.change_allfactors(factors) #We are still working on this method call 
-            #because it changes fear/morale/trust only for this NPC object. So, we want to give all NPCs
+            #because it only changes fear/morale/trust for this NPC object. We want to give all NPCs
             #an instance variable for which neighborhood they are in, which we can use to change fear/morale/trust
             #for all NPC objects in this neighborhood.
+        
+        #City.karen_disobey(self)
 
 
+=======
+        # self.percent = 0.25
+>>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
