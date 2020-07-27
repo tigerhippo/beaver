@@ -46,7 +46,7 @@ class City:
         self.num_active = 0
         self.num_sickly = 0
         #disease expansion stuff
-        self.mutation_status = {'faster': False, 'slower': False, 'cure remove': False, 'vaccine remove': False}
+        self.mutation_status = {'faster': False, 'slower': False, 'hinder cure': False, 'hinder vaccine': False}
         self.zombie_quiet = False
         self.flu_quiet = False
         self.update_summary_stats()
@@ -493,29 +493,9 @@ class City:
             elif roll_mutation == 1:
                 self.mutation_status['slower'] = True
             elif roll_mutation == 2:
-                self.mutation_status['cure remove'] = True
+                self.mutation_status['hinder cure'] = True
             elif roll_mutation == 3:
-                self.mutation_status['vaccine remove'] = True
-
-    def check_cure(self):
-        for nbh in self.neighborhoods:
-            if nbh.get_cure_status() == False:
-                chance = 0.0
-                for dep in nbh.deployments:
-                    if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
-                        chance = 1.0
-                        break
-                    elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
-                        chance = 0.5
-                        break
-                for npc in nbh.NPCs:
-                    if npc.get_personality() == 'nerd':
-                        roll_chance = random.randrange(0, 1)
-                        if roll_chance < chance:
-                            nbh.set_cure_status(True)
-                            break
-    def check_vaccine(self):
-        
+                self.mutation_status['hinder vaccine'] = True
         
     def _update_artificial_states(self,):
         # Some deployments (z cure station, flu vaccine, sniper tower, kiln, and firebomb)
@@ -528,10 +508,8 @@ class City:
                     self._art_trans_z_cure_center_fda(nbh_index)
                 elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
                     self._art_trans_z_cure_center_exp(nbh_index)
-                elif dep is DEPLOYMENTS.FLU_VACCINE_OPT:
-                    self._art_trans_flu_vaccine_free(nbh_index)
-                elif dep is DEPLOYMENTS.FLU_VACCINE_MAN:
-                    self._art_trans_flu_vaccine_man(nbh_index)
+                elif dep is DEPLOYMENTS.FLU_VACCINE_OPT or dep is DEPLOYMENTS.FLU_VACCINE_OPT:
+                    self._art_trans_flu_vaccine(nbh_index)
                 elif dep is DEPLOYMENTS.KILN_NO_QUESTIONS:
                     self._art_trans_kiln_no_questions(nbh_index)
                 elif dep is DEPLOYMENTS.SNIPER_TOWER_CONFIRM:
@@ -543,8 +521,12 @@ class City:
         self.update_summary_stats()
 
     def _art_trans_z_cure_center_fda(self, nbh_index):
-        bite_cure_prob = 0.25
-        zombie_cure_prob = 0.01
+        nerd_benefit = self.neighborhoods[nbh.index].get_data('nerd') * 0.05
+        mutation_reduction = 1.0
+        if self.mutation_status['hinder cure']:
+            mutation_reduction = 0.5
+        bite_cure_prob = (0.25 + nerd_benefit) * mutation_reduction
+        zombie_cure_prob = (0.05 + nerd_benefit) * mutation_reduction
         nbh = self.neighborhoods[nbh_index]
         for npc in nbh.NPCs:
             if npc.state_zombie is NPC_STATES_ZOMBIE.ZOMBIE_BITTEN:
@@ -555,9 +537,13 @@ class City:
                     npc.change_zombie_state(NPC_STATES_ZOMBIE.ZOMBIE_BITTEN)
 
     def _art_trans_z_cure_center_exp(self, nbh_index):
-        bite_cure_prob = 0.33
-        bite_cure_fail_prob = 0.5
-        zombie_cure_prob = 0.33
+        nerd_benefit = self.neighborhoods[nbh.index].get_data('nerd') * 0.025
+        mutation_reduction = 1.0
+        if self.mutation_status['hinder cure']:
+            mutation_reduction = 0.5
+        bite_cure_prob = (0.5 + nerd_benefit) * mutation_reduction
+        bite_cure_fail_prob = (0.5 - nerd_benefit) / mutation_reduction
+        zombie_cure_prob = (0.25 + nerd_benefit) * mutation_reduction
         nbh = self.neighborhoods[nbh_index]
         for npc in nbh.NPCs:
             if npc.state_zombie is NPC_STATES_ZOMBIE.ZOMBIE_BITTEN:
@@ -570,16 +556,13 @@ class City:
                 if random.random() <= zombie_cure_prob:
                     npc.change_zombie_state(NPC_STATES_ZOMBIE.ZOMBIE_BITTEN)
 
-    def _art_trans_flu_vaccine_free(self, nbh_index):
+    def _art_trans_flu_vaccine(self, nbh_index):
         nbh = self.neighborhoods[nbh_index]
-        vaccine_success = max(0, 0.2 - (0.01 * self.fear))
-        for npc in nbh.NPCs:
-            if (npc.state_flu is not NPC_STATES_FLU.IMMUNE) and (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE):
-                if random.random() <= vaccine_success:
-                    npc.change_flu_state(NPC_STATES_FLU.IMMUNE)
-    def _art_trans_flu_vaccine_man(self, nbh_index):
-        nbh = self.neighborhoods[nbh_index]
-        vaccine_success = 0.5
+        nerd_benefit  = nbh.get_data('nerd') * 0.05
+        mutation_reduction = 1.0
+        if self.mutation_status['hinder vaccine']:
+            mutation_reduction = 0.5
+        vaccine_success = (0.25 + nerd_benefit) * mutation_reduction
         for npc in nbh.NPCs:
             if (npc.state_flu is not NPC_STATES_FLU.IMMUNE) and (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE):
                 if random.random() <= vaccine_success:
@@ -1044,7 +1027,11 @@ class City:
                      'num_active': self.num_active,
                      'num_sickly': self.num_sickly,
                      'original_alive': self.orig_alive,
-                     'original_dead': self.orig_dead}
+                     'original_dead': self.orig_dead,
+                     'faster': self.mutation_status['faster'],
+                     'slower': self.mutation_status['slower'],
+                     'hinder cure': self.mutation_status['hinder cure'],
+                     'hinder vaccine': self.mutation_status['hinder vaccine']}
         return city_data
 
     def rl_encode(self):

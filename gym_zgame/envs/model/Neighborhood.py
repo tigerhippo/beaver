@@ -37,9 +37,6 @@ class Neighborhood:
         self.fear = 0
         self.morale = 0
         self.trust = 0
-        #disease expansion stuff
-        self.cure_status = False
-        self.vaccine_status = False
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
     def _npc_init(self, num_npcs):
@@ -248,16 +245,6 @@ class Neighborhood:
     def get_riot_status(self):
         return self.riot_status
 
-    def set_cure_status(self, status):
-        self.cure_status = status
-    def set_vaccine_status(self, status):
-        self.vaccine_status = status
-    
-    def get_cure_status(self, status):
-        return self.cure_status
-    def get_vaccine_status(self, status):
-        return self.vaccine_status
-
     def get_data(self):
         #added breakdown and atts data
         self.update_summary_stats()
@@ -284,7 +271,12 @@ class Neighborhood:
                              'original_alive': self.orig_alive,
                              'original_dead': self.orig_dead,
                              'deployments': self.deployments,
-                             'breakdown': self.breakdown,}
+                             'normal': self.breakdown['normal'],
+                             'karen': self.breakdown['karen'],
+                             'nerd': self.breakdown['nerd'],
+                             'lunatic': self.breakdown['lunatic'],
+                             'rebel': self.breakdown['rebel'],
+                             'coward': self.breakdown['coward']}
         return neighborhood_data
 
 if __name__ == '__main__':
