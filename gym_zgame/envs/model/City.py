@@ -835,8 +835,6 @@ class City:
             if npc.sickly or npc.active:
                 for _ in range(9):
                     npc.add_to_bag(NPC_ACTIONS.STAY)
-    
-    
 
     def process_moves(self):
         # Non-dead, non-zombie people
