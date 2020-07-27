@@ -31,7 +31,7 @@ class NPC:
         self.trust = 50
         self.morale = 50
         self.personality = "normal"
-        self.percent = 0.5 #largest percent of population
+        # self.percent = 0.5 #largest percent of population
         #self.neighborhood = 0
 
     def empty_bag(self):
@@ -102,47 +102,6 @@ class NPC:
                        'personality': self.personality,
                        'percent': self.percent}
         return player_data
-    
-    #added setter
-    def set_atts(self, atts):
-        self.atts = atts
-    
-    #added setter
-    def set_personality(self, personality):
-        self.personality = personality
-    
-    #added setter
-    def set_percent(self, percent):
-        self.percent = percent
-
-     #def _shouldDisobeyKaren_(self):
-        #generate random number 0 - 9
-        #if num < 5
-            #factors = karen._disobey_(self)
-            #for i in range(len(factors)):
-                #except for Karen:
-                #set fear for object
-                #set trust for object
-                #set morale for object
-    
-    #def _shouldDisobeyRebel_(self):
-        #generate random number 0 - 9
-        #if num < 8 
-            #factors = rebel._disobey_(self)
-            #for i in range(len(factors)):
-                #except for rebel
-                #set fear for object
-                #set trust for object
-                #set morale for object
-
-    #def _shouldDisobeyLunatic_(self):
-        #will disobey 100% of the time
-        #factors = lunatic._disobey_(self)
-        #for i in range(len(factors)):
-            #except for Lunatic:
-            #set fear for object
-            #set trust for object
-            #set morale for object
             
     def get_fear(self):
         return self.fear 
@@ -150,13 +109,6 @@ class NPC:
         return self.morale 
     def get_trust(self):
         return self.trust
-    
-    def set_fear(self, num):
-        self.fear = num
-    def set_morale(self, num):
-        self.morale = num
-    def set_trust(self, num):
-        self.trust = num
 
     #changes fear for an NPC object given the amount to change
     def increment_fear(self, increment):
@@ -168,6 +120,7 @@ class NPC:
     def increment_trust(self, increment):
         self.trust += increment
 
+<<<<<<< HEAD
     #def increment_allfactors(self, list):
         #self.fear += list[0]
         #self.morale += list[1]
@@ -178,9 +131,15 @@ class NPC:
         self.fear += increment_fear
         self.morale += increment_morale
         self.trust += increment_trust
+=======
+    def increment_allfactors(self, fear, morale, trust):
+        self.increment_fear(fear)
+        self.increment_morale(morale)
+        self.increment_trust(trust)
+>>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
 
     def get_personality(self):
-        return personality
+        return self.personality
     
     #checks to make sure all the NPC's attributes are in the desired range, fixes them if not
     def check_attribute_bounds(self):
@@ -196,7 +155,6 @@ class NPC:
             self.trust = 0
         elif self.trust > 100:
             self.trust = 100
-
 
 if __name__ == '__main__':
     pers = NPC()

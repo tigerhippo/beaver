@@ -1,4 +1,5 @@
 from gym_zgame.envs.model.NPC import NPC
+
 #subclass - for people with Karen personality
 class Karen(NPC):
     def __init__(self):
@@ -7,6 +8,7 @@ class Karen(NPC):
         self.morale = 50
         self.trust = 50
         self.personality = "karen"
+<<<<<<< HEAD
         #self.percent = 0.25 2nd largest percent of population
 
     #returns all data for this object in a neat, clear format
@@ -32,3 +34,6 @@ class Karen(NPC):
         #City.karen_disobey(self)
 
 
+=======
+        # self.percent = 0.25
+>>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70

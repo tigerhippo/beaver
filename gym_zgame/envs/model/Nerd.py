@@ -18,10 +18,6 @@ class Nerd(NPC):
     def _setMutation_(self, mutation):
         self.mutation = mutation
 
-    def __str__(self):
-        percentage = Nerd.pop_percent * 100
-        return "This person is of personality type " + Nerd.type_name + ", has a fear level of " + str(self.fear) + ", " + "a trust level of " + str(self.trust) + ", " + "and a morale level of " + str(self.morale) + ", and accounts for " + str(percentage) + "% of the population."
-
     #may research to try and find a cure
     def _research_(self):
         mutation_occurred = self.mutation.mutation_change() #checks if a mutation occurred
@@ -93,5 +89,20 @@ class Nerd(NPC):
             #necessary to tell another class that the risk causes nerds in this neighborhood
             #to get the disease and they should be labeled as sickly/zombie-bitten
 
+<<<<<<< HEAD
         return risk_taken
         
+=======
+        #return risk_taken
+    
+    def increment_fear(self, increment):
+        if increment > 0:
+            self.fear += increment * 0.5
+        else:
+            super.increment_fear(increment)
+    def increment_morale(self, increment):
+        if increment > 0:
+            self.morale += increment * 1.5
+        else:
+            super.increment_fear(increment)
+>>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70

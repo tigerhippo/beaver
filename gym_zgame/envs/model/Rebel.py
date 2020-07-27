@@ -7,6 +7,7 @@ class Rebel(NPC):
         self.morale = 50
         self.trust = 40
         self.personality = "rebel"
+<<<<<<< HEAD
         #self.percent = 0.1 #3rd largest percent of population
 
     def __str__(self):
@@ -42,3 +43,12 @@ class Rebel(NPC):
             #and no deployments can be placed there - for a certain number of turns
         
         return riot_occurred
+=======
+        # self.percent = 0.1 3rd largest percent of population
+    
+    def increment_trust(self, increment):
+        if increment < 0:
+            self.trust += increment * 1.5
+        else:
+            super.increment_trust(increment)
+>>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
