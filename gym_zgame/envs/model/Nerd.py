@@ -89,10 +89,6 @@ class Nerd(NPC):
             #necessary to tell another class that the risk causes nerds in this neighborhood
             #to get the disease and they should be labeled as sickly/zombie-bitten
 
-<<<<<<< HEAD
-        return risk_taken
-        
-=======
         #return risk_taken
     
     def increment_fear(self, increment):
@@ -105,4 +101,3 @@ class Nerd(NPC):
             self.morale += increment * 1.5
         else:
             super.increment_fear(increment)
->>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70

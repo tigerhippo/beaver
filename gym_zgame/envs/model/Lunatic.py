@@ -24,9 +24,6 @@ class Lunatic(NPC):
             others_infected = True
             #necessary to tell another class that 50% of the people in this neighborhood get infected
 
-<<<<<<< HEAD
-        return others_infected
-=======
         #return others_infected
 
     def increment_fear(self, increment):
@@ -36,4 +33,3 @@ class Lunatic(NPC):
             self.morale += increment
     def increment_trust(self, increment):
         self.trust = 40
->>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70

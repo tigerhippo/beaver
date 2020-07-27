@@ -908,15 +908,6 @@ class City:
     def _bag_adjust_social_distancing_celeb(self, nbh):
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
-<<<<<<< HEAD
-            # People who are sickly and active want to stay in place
-            if npc.sickly or npc.active:
-                for _ in range(9):
-                    npc.add_to_bag(NPC_ACTIONS.STAY)
-    
-    
-
-=======
             disobey_chance = npc.get_trust() / 100
             chance = random.randrange(0, 1)
             if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
@@ -925,7 +916,6 @@ class City:
                     for _ in range(9):
                         npc.add_to_bag(NPC_ACTIONS.STAY)
             
->>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
     def process_moves(self):
         # Non-dead, non-zombie people
         self._normal_moves()

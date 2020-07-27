@@ -33,21 +33,12 @@ class Neighborhood:
         self.num_moving = 0
         self.num_active = 0
         self.num_sickly = 0
-<<<<<<< HEAD
-        self.update_summary_stats()
-        self.orig_alive, self.orig_dead = self._get_original_state_metrics()
-=======
->>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
         #calculated by averaging the attributes of all residents in the neighborhood
         self.fear = 0
         self.morale = 0
         self.trust = 0
-<<<<<<< HEAD
-
-=======
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
->>>>>>> 5a80e6b0bb1def38e9bb85bd12bd086e146a6b70
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
