@@ -1,4 +1,4 @@
-class Mutation:
+class Mutations:
 
 
     def __init__(self, cure, mutation, spread):
