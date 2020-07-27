@@ -109,13 +109,6 @@ class NPC:
         return self.morale 
     def get_trust(self):
         return self.trust
-    
-    def set_fear(self, num):
-        self.fear = num
-    def set_morale(self, num):
-        self.morale = num
-    def set_trust(self, num):
-        self.trust = num
 
     def increment_fear(self, increment):
         self.fear += increment
@@ -125,9 +118,9 @@ class NPC:
         self.trust += increment
 
     def increment_allfactors(self, fear, morale, trust):
-        self.fear += fear
-        self.morale += morale
-        self.trust += trust
+        self.increment_fear(fear)
+        self.increment_morale(morale)
+        self.increment_trust(trust)
 
     def get_personality(self):
         return personality

@@ -1,4 +1,5 @@
 from gym_zgame.envs.model.NPC import NPC
+
 #subclass - for people with Karen personality
 class Karen(NPC):
     def __init__(self):

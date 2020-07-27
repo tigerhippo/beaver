@@ -44,4 +44,14 @@ class Nerd(NPC):
             #to get the disease and they should be labeled as sickly/zombie-bitten
 
         #return risk_taken
-        
+    
+    def increment_fear(self, increment):
+        if increment > 0:
+            self.fear += increment * 0.5
+        else:
+            super.increment_fear(increment)
+    def increment_morale(self, increment):
+        if increment > 0:
+            self.morale += increment * 1.5
+        else:
+            super.increment_fear(increment)
