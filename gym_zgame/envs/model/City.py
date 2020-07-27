@@ -47,7 +47,7 @@ class City:
         self.num_active = 0
         self.num_sickly = 0
         #disease expansion stuff
-        self.mutation_status = {'faster': False, 'slower': False, 'hinder cure': False, 'hinder vaccine': False}
+        self.mutation_status = {'faster': False, 'slower': False, 'lethality up': False, 'lethality down': False, 'hinder cure': False, 'hinder vaccine': False, 'reverse immunity': False}
         self.zombie_quiet = False
         self.flu_quiet = False
         self.update_summary_stats()
@@ -371,10 +371,7 @@ class City:
             self._destroy_upkeep_deployments()
         self.update_attributes()
         self.check_mutations()
-        self.check_cure()
-        self.check_vaccine()
 
-    @staticmethod
     def determine_increment_resources(self):
         # Update resource increments for per-turn deployments
         resource_cost_per_turn = 0
@@ -405,10 +402,9 @@ class City:
             resource_cost_per_turn += nbh_cost
         self.resources_spent += resource_cost_per_turn
         return resource_cost_per_turn
-    @staticmethod
     def determine_resource_discount(self, nbh, og_cost):
         #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
-        discount = 0.0
+        discount = 1.0
         if nbh.get_data().get('fear') > 80:
             discount *= 1.5
         elif nbh.get_data().get('fear') > 60:
@@ -420,7 +416,7 @@ class City:
         elif nbh.get_data().get('morale') < 20:
             discount *= 1.5
         elif nbh.get_data().get('morale') < 40:
-            discount += 1.25
+            discount *= 1.25
         return discount
 
     def _destroy_upkeep_deployments(self):
@@ -428,7 +424,6 @@ class City:
             nbh.destroy_deployments_by_type(self.UPKEEP_DEPS)
 
     #FOR NOW ONLY FOR PASSIVE PER-TURN INCREASES (will add other sources later)
-    @staticmethod
     def update_attributes(self):
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
@@ -489,15 +484,28 @@ class City:
     def check_mutation(self):
         random = random.randrange(0, 1)
         if random < 0.1:
-            roll_mutation = random.randint(0, 4)
-            if roll_mutation == 0:
+            roll_mutation = random.randint(0, 7)
+            if roll_mutation == 0 and self.mutation_status['faster'] == False:
                 self.mutation_status['faster'] = True
-            elif roll_mutation == 1:
+            elif roll_mutation == 1 and self.mutation_status['slower'] == False:
                 self.mutation_status['slower'] = True
-            elif roll_mutation == 2:
+            elif roll_mutation == 2 and self.mutation_status['lethality up'] == False:
+                self.mutation_status['lethality up'] = True
+            elif roll_mutation == 3 and self.mutation_status['lethality down'] == False:
+                self.mutation_status['lethality down'] = True
+            elif roll_mutation == 4 and self.mutation_status['hinder cure'] == False:
                 self.mutation_status['hinder cure'] = True
-            elif roll_mutation == 3:
+            elif roll_mutation == 5 and self.mutation_status['hinder vaccine'] == False:
                 self.mutation_status['hinder vaccine'] = True
+            elif roll_mutation == 6 and self.mutation_status['reverse immunity'] == False:
+                self.mutation_status['reverse immunity'] = True
+        #certain mutations will cancel each other out
+        if self.mutation_status['faster'] and self.mutation_status['slower']:
+            self.mutation_status['faster'] = False
+            self.mutation_status['slower'] = False
+        if self.mutation_status['lethality up'] and self.mutation_status['lethality down']:
+            self.mutation_status['lethality up'] = False
+            self.mutation_status['lethality down'] = False
         
     def _update_artificial_states(self,):
         # Some deployments (z cure station, flu vaccine, sniper tower, kiln, and firebomb)
@@ -663,7 +671,6 @@ class City:
             incubate_prob = trans_probs.get('incubate')
             fumes_prob = trans_probs.get('fumes')
             cough_prob = trans_probs.get('cough')
-            mutate_prob = trans_probs.get('mutate')
 
             # Update based on deployments
             if DEPLOYMENTS.BSL4LAB_SAFETY_OFF in nbh.deployments:
@@ -674,6 +681,21 @@ class City:
             if DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY in nbh.deployments:
                 cough_prob = min(1.0, fumes_prob * 0.25)
                 fumes_prob = min(1.0, fumes_prob * 0.25)
+            #update based on mutations
+            if self.mutation_status['faster']:
+                fumes_prob *= 1.5
+                cough_prob *= 1.5
+            elif self.mutation_status['slower']:
+                fumes_prob *= 0.5
+                cough_prob *= 0.5
+            if self.mutation_status['lethality up']:
+                recover_prob *= 0.5
+                pneumonia_prob *= 1.25
+                incubate_prob *= 1.5
+            elif self.mutation_status['lethality down']:
+                recover_prob *= 1.25
+                pneumonia_prob *= 0.75
+                incubate_prob *= 0.5
 
             # Flu Laws
             for npc in nbh.NPCs:
@@ -699,7 +721,7 @@ class City:
                         npc.change_flu_state(NPC_STATES_FLU.INCUBATING)
                 # Mutate
                 if npc.state_flu is NPC_STATES_FLU.IMMUNE:
-                    if random.random() <= mutate_prob:
+                    if self.mutation_status['reverse immunity']:
                         npc.change_flu_state(NPC_STATES_FLU.HEALTHY)
 
     def _zombie_transitions(self):
@@ -732,6 +754,17 @@ class City:
             if DEPLOYMENTS.SOCIAL_DISTANCING_SIGNS in nbh.deployments:
                 bite_prob = min(1.0, bite_prob * 0.25)
                 fight_back_prob = min(1.0, fight_back_prob * 0.25)
+            #update based on mutations
+            if self.mutation_status['faster']:
+                bite_prob *= 1.25
+                rise_prob *= 1.1
+            elif self.mutation_status['slower']:
+                bite_prob * 0.75
+                rise_prob *= 1.1
+            if self.mutation_status['lethality up']:
+                turn_prob *= 1.5
+            elif self.mutation_status['lethality down']:
+                turn_prob *= 0.5
 
             # Zombie Laws
             for npc in nbh.NPCs:
@@ -1033,8 +1066,11 @@ class City:
                      'original_dead': self.orig_dead,
                      'faster': self.mutation_status['faster'],
                      'slower': self.mutation_status['slower'],
+                     'lethality up': self.mutation_status['lethality up'],
+                     'lethality down': self.mutation_status['lethality down'],
                      'hinder cure': self.mutation_status['hinder cure'],
-                     'hinder vaccine': self.mutation_status['hinder vaccine']}
+                     'hinder vaccine': self.mutation_status['hinder vaccine'],
+                     'reverse immunity': self.mutation_status['reverse immunity']}
         return city_data
 
     def rl_encode(self):
