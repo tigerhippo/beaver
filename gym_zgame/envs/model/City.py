@@ -245,9 +245,12 @@ class City:
         # Update state info
         done = self.check_done()
         self.update_summary_stats()
+        score = self.get_score()
+        self.score = score
+        self.total_score += score
         self.resources += 1
         self.turn += 1
-        return done
+        return score, done
 
     def _add_buildings_to_locations(self, nbh_1_index, dep_1, nbh_2_index, dep_2):
         # Update the list of deployments at that location
@@ -908,10 +911,23 @@ class City:
 
     def check_done(self):
         return self.turn >= self.max_turns
+    def get_score(self):
+        self.update_summary_stats()
+        active_weight = 1.0
+        sickly_weight = 0.5
+        fear_weight = 1.0
+        zombie_weight = 2.0
+        score = (self.num_active * active_weight) + \
+                (self.num_sickly * sickly_weight) - \
+                (self.fear * fear_weight) - \
+                (self.num_zombie * zombie_weight)
+        scaled_score = np.floor((score + 800) / 100)  # scaled to fit env state space range
+        return scaled_score
 
     def get_data(self):
         self.update_summary_stats()
-        city_data = {'fear': self.fear,
+        city_data = {'score': self.get_score(),
+                     'fear': self.fear,
                      'morale': self.morale,
                      'trust': self.trust,
                      'resources': self.resources,
