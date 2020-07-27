@@ -134,12 +134,12 @@ class Neighborhood:
         for person in NPCs:
             person.increment_trust(increment)
     
-    #raises the entire neighborhood average for all three factors at once
-    def raise_total_average_allFactors(self, list):
+    def raise_total_personalities(self, personality, fear, morale, trust):
         for person in NPCs:
-            person.increment_fear(list[0])
-            person.increment_morale(list[1])
-            person.increment_trust(list[2])
+            if person.get_personality() == personality:
+                person.increment_fear(fear)
+                person.increment_morale(morale)
+                person.increment_trust(trust)
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)
@@ -234,6 +234,7 @@ class Neighborhood:
         self.update_riot_status()
         
     def update_riot_status(self):
+        return False
         self.riot_status = False
         riot_chance = 0.1
         chance = random.randrange(0, 1)
