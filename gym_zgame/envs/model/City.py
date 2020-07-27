@@ -17,6 +17,7 @@ class City:
         self._init_neighborhoods(loc_npc_range)
         self._init_neighborhood_threats()
         self.resources = 10
+        self.resources_spent = 0
         self.score = 0
         self.total_score = 0
         self.turn = 0
@@ -402,6 +403,7 @@ class City:
             #applies the morale or high fear resource increase/decrease
             nbh_cost *= determine_resource_discount(self, nbh, nbh_cost)
             resource_cost_per_turn += nbh_cost
+        self.resources_spent += resource_cost_per_turn
         return resource_cost_per_turn
     @staticmethod
     def determine_resource_discount(self, nbh, og_cost):
@@ -1012,6 +1014,7 @@ class City:
                      'morale': self.morale,
                      'trust': self.trust,
                      'resources': self.resources,
+                     'resources_spent': self.resources_spent,
                      'num_npcs': self.num_npcs,
                      'num_alive': self.num_alive,
                      'num_dead': self.num_dead,
@@ -1297,57 +1300,7 @@ class City:
                 return None
         else:
             raise ValueError('Bad location passed into new location mapping.')
-        
-        @staticmethod
-        def karen_disobey(karen):
-            #50% chance they disobey
-            num = random.randint(0, 9)
-
-            if num < 5:
-
-                karen_neighborhood = Neighborhood() #MAYBE WE COULD PUT THIS INTO A SEPARATE METHOD
-                found_neighborhood = False
-                for neighborhood in self.neighborhoods:
-                    npcs = neighborhood.getNPCs() #we should make a getter for the NPC list
-                    for npc in npcs:
-                        if npc == karen: #checks if this NPC object is THIS Karen object
-                            karen_neighborhood = neighborhood
-                            found_neighborhood = True
-                            break
-                    if found_neighborhood == True:
-                        break
-
-                #karen_neigborhood = get_neighborhood_for_NPC(karen)
-                
-                npcs = karen_neighborhood.getNPCs()
-                for npc in npcs:
-                    if npc.personality.equals("normal"): #remember to use the getter
-                        npc.increment_allfactors(1, -1, -1)
-                    elif npc.personality.equals("nerd"):
-                        npc.increment_allfactors(1, -1, -1)
-                    elif npc.personality.equals("lunatic"):
-                        npc.increment_allfactors(0, 0, 0)
-                    elif npc.personality.equals("rebel"):
-                        npc.increment_allfactors(0, 0, 0)
-                    elif npc.personality.equals("coward"):
-                        npc.increment_allfactors(2, -2, -2)
-                    else:
-                        continue
-
-        #def get_neighborhood_for_NPC(self, npc):
-            #npc_neighborhood = Neighborhood()
-            #for neighborhood in self.neighborhoods:
-                #for person in neighborhood:
-                    #if person.equals(npc):
-                        #npc_neighborhood = neighborhood
-                        #break
-            #return npc_neighborhood
-
-            
-
 
 if __name__ == '__main__':
     city = City()
     print(city.get_data())
-
-
