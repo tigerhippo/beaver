@@ -3,13 +3,15 @@ from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS, DEPLOYMENTS
 from gym_zgame.envs.enums.NPC_STATES import NPC_STATES_DEAD, NPC_STATES_ZOMBIE, NPC_STATES_FLU
 from gym_zgame.envs.model.NPC import NPC
 
-
 class Neighborhood:
 
     def __init__(self, id, location, adj_locations, num_init_npcs):
         self.id = id
         self.location = location
+        #tracks NPCs and how many NPCs are in each personality category
         self.NPCs = []
+        #dictionary stores the number of NPCs with each personality type
+        self.breakdown = {"normal":0, "karen":0, "nerd":0, "lunatic":0, "rebel":0, "coward":0}
         self.adj_locations = adj_locations
         self._npc_init(num_init_npcs)
         self.deployments = []
@@ -32,11 +34,38 @@ class Neighborhood:
         self.num_sickly = 0
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
-
+<<<<<<< HEAD
+        #1 represents Attribute object in Neighborhood class
+        self.atts = Attributes(1, 0, 0, 0)
+    
+=======
+        #calculated by averaging the attributes of all residents in the neighborhood
+        self.fear = 0
+        self.morale = 0
+        self.trust = 0
+>>>>>>> 99c1f134a7ce53624ded4868e3db774d58f3ce81
     def _npc_init(self, num_npcs):
         init_npcs = []
         for _ in range(num_npcs):
-            npc = NPC()
+            personality = random.randrange(0, 1)
+            if(personality < 0.5):
+                npc = NPC()
+                self.breakdown["normal"] += 1
+            elif(personality < 0.75):
+                npc = Karen()
+                self.breakdown["karen"] += 1
+            elif(personality < 0.85):
+                npc = Rebel()
+                self.breakdown["rebel"] += 1
+            elif(personality < 0.94):
+                npc = Coward()
+                self.breakdown["coward"] += 1
+            elif(personality < 0.99):
+                npc = Nerd()
+                self.breakdown["nerd"] += 1
+            else:
+                npc = Lunatic()
+                self.breakdown["lunatic"] += 1
             zombie_chance = random.uniform(0, 1)
             flu_chance = random.uniform(0, 1)
             if zombie_chance >= 0.9:
@@ -75,18 +104,15 @@ class Neighborhood:
     def add_NPC(self, NPC):
         self.NPCs.append(NPC)
         self.update_summary_stats()
-
     def add_NPCs(self, NPCs):
         self.NPCs.extend(NPCs)
         self.update_summary_stats()
-
     def remove_NPC(self, NPC):
         if NPC in self.NPCs:
             self.NPCs.remove(NPC)
             self.update_summary_stats()
         else:
             print('WARNING: Attempted to remove NPC that did not exist in neighborhood')
-
     def remove_NPCs(self, NPCs):
         for NPC in NPCs:
             self.remove_NPC(NPC)
@@ -97,12 +123,21 @@ class Neighborhood:
 
     def add_deployment(self, deployment):
         self.deployments.append(deployment)
-
     def add_deployments(self, deployments):
         self.deployments.extend(deployments)
-
     def destroy_deployments_by_type(self, dep_types):
         self.deployments = [dep for dep in self.deployments if dep not in dep_types]
+
+    #raises the entire neighborhood average by adding the intended average increase to each person in the neighborhood
+    def raise_total_average_fear(self, increment):
+        for person in NPCs:
+            person.increment_fear(increment)
+    def raise_total_average_morale(self, increment):
+        for person in NPCs:
+            person.increment_morale(increment)
+    def raise_total_average_trust(self, increment):
+        for person in NPCs:
+            person.increment_trust(increment)
 
     def update_summary_stats(self):
         self.num_npcs = len(self.NPCs)
@@ -169,9 +204,13 @@ class Neighborhood:
         assert (self.num_npcs == total_count_flu)
 
     def get_data(self):
+        #added breakdown and atts data
         self.update_summary_stats()
         neighborhood_data = {'id': self.id,
                              'location': self.location,
+                             'fear': self.fear,
+                             'morale': self.morale,
+                             'trust': self.trust,
                              'num_npcs': self.num_npcs,
                              'num_alive': self.num_alive,
                              'num_dead': self.num_dead,
@@ -188,8 +227,18 @@ class Neighborhood:
                              'num_sickly': self.num_sickly,
                              'original_alive': self.orig_alive,
                              'original_dead': self.orig_dead,
-                             'deployments': self.deployments}
+                             'deployments': self.deployments,
+                             'breakdown': self.breakdown,
+                             'atts': self.atts}
         return neighborhood_data
+
+    #added setter
+    def set_breakdown(self, breakdown):
+        self.breakdown = breakdown
+    
+    #added setter
+    def set_atts(self, atts):
+        self.atts = atts
 
 
 if __name__ == '__main__':

@@ -1,11 +1,14 @@
-from gym_zgame.envs.model.Personality import Personality
+from gym_zgame.envs.model.NPC import NPC
 #subclass - for people with Karen personality
-class Karen(Personality):
-    type_name = "Karen"
-    pop_percent = 0.25 #2nd largest percent of population
-
-    def __init__(self, fear, trust, morale):
-        super().__init__(fear, trust, morale)
+class Karen(NPC):
+    def __init__(self):
+        super().__init__()
+        self.personality = "karen"
+<<<<<<< HEAD
+        self.percent = 0.25 #2nd largest percent of population
+=======
+        # self.percent = 0.25
+>>>>>>> 99c1f134a7ce53624ded4868e3db774d58f3ce81
 
     def __str__(self):
         percentage = Karen.pop_percent * 100
@@ -13,8 +16,17 @@ class Karen(Personality):
     
     #may choose not to follow orders/rules/warnings they believe are useless/stupid
     def _disobey_(self):
-        addFear_by = 1 #increases OTHERS' fear by 1
-        addTrust_by = 0 #neither increases nor decreases fear - fear stays the same
-        addMorale_by = -1 #decreases fear by 1
-        factors = [addFear_by, addTrust_by, addMorale_by] #list stores all variables for conveniency - these variables will be used very often
-        return factors
+        #50% chance they disobey
+        num = random.randint(0, 9)
+
+        if num < 5:
+            addFear_by = 1 #increases fear by 1 for this neighborhood
+            addMorale_by = -1 #decreases fear by 1 for this neighborhood
+            addTrust_by = 0 #neither increases nor decreases fear for this neighborhood - fear stays the same
+            factors = [addFear_by, addTrust_by, addMorale_by] #list stores all variables for conveniency - these variables will be used very often
+            self.atts.change_allfactors(factors) #We are still working on this method call 
+            #because it changes fear/morale/trust only for this NPC object. So, we want to give all NPCs
+            #an instance variable for which neighborhood they are in, which we can use to change fear/morale/trust
+            #for all NPC objects in this neighborhood.
+
+
