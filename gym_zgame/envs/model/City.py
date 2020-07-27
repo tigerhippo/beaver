@@ -5,7 +5,6 @@ import pyfiglet as pf
 from gym_zgame.envs.Print_Colors.PColor import PBack, PFore, PFont, PControl
 from gym_zgame.envs.model.Neighborhood import Neighborhood
 from gym_zgame.envs.model.NPC import NPC
-from gym_zgame.envs.model.Mutations import Mutations
 from gym_zgame.envs.enums.PLAYER_ACTIONS import LOCATIONS, DEPLOYMENTS
 from gym_zgame.envs.enums.NPC_STATES import NPC_STATES_DEAD, NPC_STATES_ZOMBIE, NPC_STATES_FLU
 from gym_zgame.envs.enums.NPC_ACTIONS import NPC_ACTIONS
@@ -46,7 +45,10 @@ class City:
         self.num_moving = 0
         self.num_active = 0
         self.num_sickly = 0
-        self.mutation_status = {'none': False, 'faster': False, 'slower': False, 'stronger': False, 'weaker': False}
+        #disease expansion stuff
+        self.mutation_status = {'faster': False, 'slower': False, 'cure remove': False, 'vaccine remove': False}
+        self.zombie_quiet = False
+        self.flu_quiet = False
         self.update_summary_stats()
 
     def _init_neighborhoods(self, loc_npc_range):
@@ -95,6 +97,7 @@ class City:
         self.neighborhoods = [center, north, south, east, west,
                               north_east, north_west, south_east, south_west]
 
+    #quiet cases-potential to have zero risk whatsoever
     def _init_neighborhood_threats(self):
         # Add 10 dead in a random location (10 dead NO LONGER TRUE)
         dead_loc_index = random.choice(range(len(self.neighborhoods)))
@@ -112,51 +115,45 @@ class City:
         dead_loc.add_NPCs(dead_npcs)
         dead_loc.orig_dead += num
 
-        # Add 1 zombie in a random location (1 zombie NO LONGER TRUE)
-        zombie_loc_index = random.choice(range(len(self.neighborhoods)))
-        zombie_loc = self.neighborhoods[zombie_loc_index]
-        zombie_npcs = []
+        #randomly rolls chance to not have flu or zombies
+        rand1 = random.randrange(0, 1)
+        rand2 = random.randrange(0, 1)
+        if(rand1 > 0.05):
+            # Add 1 zombie in a random location
+            zombie_loc_index = random.choice(range(len(self.neighborhoods)))
+            zombie_loc = self.neighborhoods[zombie_loc_index]
+            self.zombie_quiet = True
+        if(rand2 > 0.05):
+            # Add 1 flu incubating at each location
+            flu_loc_index = random.choice(range(len(self.neighborhoods)))
+            flu_loc = self.neighborhoods[flu_loc_index]
+            self.flu_quiet = True
 
         #generate a random number of zombies - could be zero
-        num = random.randint(0, 10)
+        zombie_npcs = []
+        num = random.randint(0, 5)
         for _ in range(num):
             if num == 0:
                 break
             zombie_npc = NPC()
             zombie_npc.change_zombie_state(NPC_STATES_ZOMBIE.ZOMBIE)
             zombie_npcs.append(zombie_npc)
+            self.zombie_quiet = False
         zombie_loc.add_NPCs(zombie_npcs)
         zombie_loc.orig_zombie += num
 
-        # Add 1 flu incubating at each location (1 flu NO LONGER TRUE)
-
-        flu_loc_index = random.choice(range(len(self.neighborhoods)))
-        flu_loc = self.neighborhoods[flu_loc_index]
-        flu_npcs = []
-
         #generate a random number of flu incubations - could be zero
-        num = random.randint(0, 10)
+        flu_npcs = []
+        num = random.randint(0, 5)
         for _ in range(num):
             if num == 0:
                 break
             flu_npc = NPC()
             flu_npc.change_flu_state(NPC_STATES_FLU.FLU)
             flu_npcs.append(flu_npc)
+            self.flu_quiet = False
         flu_loc.add_NPCs(flu_npcs)
         flu_loc.orig_flu += num
-
-        dead_zombie_flu = [] #QUIET CASES - stores three booleans which represent whether there are no dead, no zombies, and/or no flu 
-        if len(dead_npcs) == 0:
-            no_dead = True
-            dead_zombie_flu.append(no_dead)
-        if len(zombie_npcs) == 0:
-            no_zombies = True
-            dead_zombie_flu.append(no_zombies)
-        if len(flu_npcs) == 0:
-            no_flu = True
-            dead_zombie_flu.append(no_flu)
-        
-        return dead_zombie_flu
 
     def _get_original_state_metrics(self):
         og_alive = 0
@@ -270,89 +267,89 @@ class City:
         morale_increment = 0
         trust_increment = 0
         for dep in nbh.deployments:
-                if dep is QUARANTINE_OPEN:
+                if dep is DEPLOYMENTS.QUARANTINE_OPEN:
                     fear_increment += 5
-                if dep is QUARANTINE_FENCED:
+                if dep is DEPLOYMENTS.QUARANTINE_FENCED:
                     fear_increment += 1
-                if dep is BITE_CENTER_DISINFECT:
+                if dep is DEPLOYMENTS.BITE_CENTER_DISINFECT:
                     fear_increment -= 5
                     morale_increment += 5
                     trust_increment += 2.5
-                if dep is BITE_CENTER_AMPUTATE:
+                if dep is DEPLOYMENTS.BITE_CENTER_AMPUTATE:
                     fear_increment -= 2.5
                     morale_increment += 5
                     trust_increment += 1.25
-                if dep is Z_CURE_CENTER_FDA:
+                if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
                     fear_increment -= 10
                     morale_increment += 10
                     trust_increment += 5
-                if dep is Z_CURE_CENTER_EXP:
+                if dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
                     fear_increment -= 5
                     morale_increment += 10
                     trust_increment += 2.5
-                if dep is FLU_VACCINE_OPT:
+                if dep is DEPLOYMENTS.FLU_VACCINE_OPT:
                     fear_increment -= 10
                     morale_increment += 10
                     trust_increment += 10
-                if dep is FLU_VACCINE_MAN:
+                if dep is DEPLOYMENTS.FLU_VACCINE_MAN:
                     fear_increment += 5
                     morale_increment += 10
                     trust_increment -= 5
-                if dep is KILN_OVERSIGHT:
+                if dep is DEPLOYMENTS.KILN_OVERSIGHT:
                     fear_increment -= 5
                     morale_increment += 2.5
                     trust_increment += 5
-                if dep is KILN_NO_QUESTIONS:
+                if dep is DEPLOYMENTS.KILN_NO_QUESTIONS:
                     fear_increment += 10
                     morale_increment -= 2.5
                     trust_increment -= 10
-                if dep is BROADCAST_DONT_PANIC:
+                if dep is DEPLOYMENTS.BROADCAST_DONT_PANIC:
                     fear_increment -= 10
                     morale_increment += 10
                     trust_increment -= 10
-                if dep is BROADCAST_CALL_TO_ARMS:
+                if dep is DEPLOYMENTS.BROADCAST_CALL_TO_ARMS:
                     fear_increment -= 25
                     morale_increment += 25
                     trust_increment -= 25
-                if dep is SNIPER_TOWER_CONFIRM:
+                if dep is DEPLOYMENTS.SNIPER_TOWER_CONFIRM:
                     fear_increment += 5
                     morale_increment += 5
                     trust_increment += 5
-                if dep is SNIPER_TOWER_FREE:
+                if dep is DEPLOYMENTS.SNIPER_TOWER_FREE:
                     fear_increment += 10
                     morale_increment -= 10
                     trust_increment -= 10
-                if dep is PHEROMONES_BRAINS:
+                if dep is DEPLOYMENTS.PHEROMONES_BRAINS:
                     fear_increment -= 10
                     morale_increment -= 10
                     trust_increment += 10
-                if dep is PHEROMONES_MEAT:
+                if dep is DEPLOYMENTS.PHEROMONES_MEAT:
                     fear_increment -= 25
                     morale_increment += 10
                     trust_increment -= 25
-                if dep is BSL4_LAB_SAFETY_ON:
+                if dep is DEPLOYMENTS.BSL4_LAB_SAFETY_ON:
                     morale_increment += 10
-                if dep is BSL4_LAB_SAFETY_OFF:
+                if dep is DEPLOYMENTS.BSL4_LAB_SAFETY_OFF:
                     trust_increment -= 25
-                if dep is RALLY_POINT_OPT:
+                if dep is DEPLOYMENTS.RALLY_POINT_OPT:
                     morale_increment += 5
                     trust_increment += 5
-                if dep is RALLY_POINT_FULL:
+                if dep is DEPLOYMENTS.RALLY_POINT_FULL:
                     fear_increment += 19
                     trust_increment -= 10
-                if dep is FIREBOMB_PRIMED:
+                if dep is DEPLOYMENTS.FIREBOMB_PRIMED:
                     fear_increment += 25
                     morale_increment -= 25
                     trust_increment -= 25
-                if dep is FIREBOMB_BARRAGE:
+                if dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
                     fear_increment += 25
                     morale_increment -= 25
                     trust_increment -= 25
-                if dep is SOCIAL_DISTANCING_SIGNS:
+                if dep is DEPLOYMENTS.SOCIAL_DISTANCING_SIGNS:
                     fear_increment += 5
                     morale_increment -= 5
                     trust_increment += 5
-                if dep is SOCIAL_DISTANCING_CELEBRITY:
+                if dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
                     fear_increment -= 5
                     morale_increment += 5
                     trust_increment += 10
@@ -365,6 +362,16 @@ class City:
         self._update_global_states()
         self._update_artificial_states()
         self._update_natural_states()
+
+    def _update_global_states(self):
+        self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
+        if self.resources < 0:
+            self.resources = 0
+            self._destroy_upkeep_deployments()
+        self.update_attributes()
+        self.check_mutations()
+        self.check_cure()
+        self.check_vaccine()
 
     @staticmethod
     def determine_increment_resources(self):
@@ -413,13 +420,6 @@ class City:
         elif nbh.get_data().get('morale') < 40:
             discount += 1.25
         return discount
-
-    def _update_global_states(self):
-        self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
-        if self.resources < 0:
-            self.resources = 0
-            self._destroy_upkeep_deployments()
-        self.update_attributes()
 
     def _destroy_upkeep_deployments(self):
         for nbh in self.neighborhoods:
@@ -483,6 +483,39 @@ class City:
             nbh = self.neighborhoods[nbh_index]
             total_trust += nbh.get_data().get('trust')
         return total_trust / len(self.neighborhoods)
+    
+    def check_mutation(self):
+        random = random.randrange(0, 1)
+        if random < 0.1:
+            roll_mutation = random.randint(0, 4)
+            if roll_mutation == 0:
+                self.mutation_status['faster'] = True
+            elif roll_mutation == 1:
+                self.mutation_status['slower'] = True
+            elif roll_mutation == 2:
+                self.mutation_status['cure remove'] = True
+            elif roll_mutation == 3:
+                self.mutation_status['vaccine remove'] = True
+
+    def check_cure(self):
+        for nbh in self.neighborhoods:
+            if nbh.get_cure_status() == False:
+                chance = 0.0
+                for dep in nbh.deployments:
+                    if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
+                        chance = 1.0
+                        break
+                    elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
+                        chance = 0.5
+                        break
+                for npc in nbh.NPCs:
+                    if npc.get_personality() == 'nerd':
+                        roll_chance = random.randrange(0, 1)
+                        if roll_chance < chance:
+                            nbh.set_cure_status(True)
+                            break
+    def check_vaccine(self):
+        
         
     def _update_artificial_states(self,):
         # Some deployments (z cure station, flu vaccine, sniper tower, kiln, and firebomb)

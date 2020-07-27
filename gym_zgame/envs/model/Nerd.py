@@ -8,61 +8,6 @@ class Nerd(NPC):
         self.trust = 60
         self.personality = "nerd"
         #self.percent = 0.05 #5th largest percent of population
-
-    #may research to try and find a cure
-    def _research_(self):
-        mutation_occurred = self.mutation.mutation_change() #checks if a mutation occurred
-        cure = self.mutation.getCure() #variable stores new chance of finding a cure
-        #spread = mutation.getSpread() #variable stores new chance of disease spreading
-        #IF WE CONSIDER THE DISEASE SPREAD RATE SHOULD WE RETURN A VARIABLE FOR IT?
-
-        cure_found = False
-        if mutation_occurred == True:
-            #(cure * 100)% of the time successful cure found
-            num = random.randint(0, 100)
-            upper_bound = cure * 100
-
-            #if cure is found:
-            if num < upper_bound:
-                addFear_by = -5
-                addTrust_by = 5
-                addMorale_by = 5
-                factors = [addFear_by, addTrust_by, addMorale_by]
-                self.atts.change_allfactors(factors)
-                
-                cure_found = True
-            #if cure is not found:
-            else:
-                addFear_by = 5
-                addTrust_by = 0
-                addMorale_by = -5
-                factors = [addFear_by, addTrust_by, addMorale_by]
-                self.atts.change_allfactors(factors)
-
-        else:
-            #10% of the time successful cure found
-            num = random.randint(0, 100)
-
-            #if cure is found:
-            if num < 10:
-                addFear_by = -5
-                addTrust_by = 5
-                addMorale_by = 5
-                factors = [addFear_by, addTrust_by, addMorale_by] 
-                self.atts.change_allfactors(factors)
-
-                cure_found = True 
-            #if cure is not found:
-            else:
-                addFear_by = 5
-                addTrust_by = 0
-                addMorale_by = -5
-                factors = [addFear_by, addTrust_by, addMorale_by] 
-                self.atts.change_allfactors(factors)
-
-        #necessary to tell another class that the cure impacts the spread of the disease
-        return cure_found
-
     
     #may put themselves in danger to do more research
     def _takeRisk_(self):
