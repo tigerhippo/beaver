@@ -1030,7 +1030,8 @@ class City:
         state[0, 4] = int(self.orig_dead)  # Original number dead
         state[0, 5] = int(self.score)  # Score on a given turn (trying to maximize)
         
-        state[0, 6] = int(self.num_resources_used) #ADDED THIS #also moved self.num_resources_used to Main Parameters
+        y = lambda x : (2 / 3) * x + (200 / 3)
+        state[0, 6] = int(y(self.num_resources_used)) #ADDED THIS #also moved self.num_resources_used to Main Parameters
         #CHECK TO SEE IF THIS VARIABLE CAN GO UNDER ZERO 
         #IF IT DOES, EITHER CHANGE THE ZGAMEENV.PY PARAMETERS OR SCALE INT(SELF.NUM_RESOURCES_USED + 20) (EX.)
         
