@@ -127,7 +127,7 @@ class City:
             zombie_npc.change_zombie_state(NPC_STATES_ZOMBIE.ZOMBIE)
             zombie_npcs.append(zombie_npc)
         zombie_loc.add_NPCs(zombie_npcs)
-        zombie_loc.orig_zombie += num
+        #zombie_loc.orig_zombie += num #CAUSING AN ERROR THAT NEEDS TO BE FIXED
 
         # Add 1 flu incubating at each location (1 flu NO LONGER TRUE)
 
@@ -144,7 +144,7 @@ class City:
             flu_npc.change_flu_state(NPC_STATES_FLU.FLU)
             flu_npcs.append(flu_npc)
         flu_loc.add_NPCs(flu_npcs)
-        flu_loc.orig_flu += num
+        #flu_loc.orig_flu += num
 
         dead_zombie_flu = [] #QUIET CASES - stores three booleans which represent whether there are no dead, no zombies, and/or no flu 
         if len(dead_npcs) == 0:
@@ -262,6 +262,17 @@ class City:
 
     def _add_buildings_to_locations(self, nbh_1_index, dep_1, nbh_2_index, dep_2):
         # Update the list of deployments at that location
+        #resources_used_up = self.resources_available() #CHECKS IF RESOURCES ARE USED UP
+        #if resources_used_up == True:
+            #CHECK ALL DEPLOYMENTS WHICH COST RESOURCES TO SEE IF THE DEPLOYMENT ADDED IS ONE OF THEM
+            #if dep_1 is not DEPLOYMENTS.Z_CURE_CENTER_FDA and dep_1 is not DEPLOYMENTS.Z_CURE_CENTER_EXP and dep_1 is not DEPLOYMENTS.FLU_VACCINE_MAN and dep_1 is not DEPLOYMENTS.PHEROMONES_MEAT and dep_1 is not DEPLOYMENTS.FIREBOMB_BARRAGE and dep_1 is not DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY
+                #self.neighborhoods[nbh_1_index].add_deployment(dep_1) 
+            #if dep_2 is not DEPLOYMENTS.Z_CURE_CENTER_FDA and dep_2 is not DEPLOYMENTS.Z_CURE_CENTER_EXP and dep_2 is not DEPLOYMENTS.FLU_VACCINE_MAN and dep_2 is not DEPLOYMENTS.PHEROMONES_MEAT and dep_2 is not DEPLOYMENTS.FIREBOMB_BARRAGE and dep_2 is not DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY
+                #self.neighborhoods[nbh_2_index].add_deployment(dep_2)
+        #else:
+            #self.neighborhoods[nbh_1_index].add_deployment(dep_1)
+            #self.neighborhoods[nbh_2_index].add_deployment(dep_2)
+
         self.neighborhoods[nbh_1_index].add_deployment(dep_1)
         self.neighborhoods[nbh_2_index].add_deployment(dep_2)
 
@@ -292,8 +303,12 @@ class City:
                 elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
                     if nbh.num_active >= 5:
                         nbh_cost -= 5 #medium negative cost
+                        #nbh_cost += 0 #adds to resources so no need to add to cost
+                        #self.resources += 5 #ADDED THIS TO VARIABLE KEEPING TRACK OF RESOURCES AVAILABLE TO PLAYER
                 elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
                     nbh_cost -= 5 #medium negative cost
+                    #nbh_cost += 0 #adds to resources so no need to add to cost
+                    #self.resources += 5 #ADDED THIS TO VARIABLE KEEPING TRACK OF RESOURCES AVAILABLE TO PLAYER
                 elif dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
                     nbh_cost += 10 #high cost
                 elif dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
@@ -303,6 +318,13 @@ class City:
             resource_cost_per_turn += nbh_cost
             self.num_resources_used += resource_cost_per_turn #adds number of resources used up for this turn to instance variable tracking total for game
         return resource_cost_per_turn 
+
+    #CHECKS IF PLAYER USED UP ALL RESOURCES THAT ARE AVAILABLE TO THEM
+    #def resources_available(self):
+        #resources_used_up = False
+        #if(self.num_resources_used >= self.resources):
+            #resources_used_up = True
+        #return resources_used_up
     
     #@staticmethod
     def determine_resource_discount(self, nbh, og_cost):
@@ -990,13 +1012,13 @@ class City:
                      'num_active': self.num_active,
                      'num_sickly': self.num_sickly,
                      'original_alive': self.orig_alive,
-                     'original_dead': self.orig_dead
+                     'original_dead': self.orig_dead,
                      'num_resources_used': self.num_resources_used} #ADDED THIS PART TO TRACK RESOURCES USED
         return city_data
 
     def rl_encode(self):
         # Set up data structure for the state space, must match the ZGameEnv!
-        #state = np.zeros(shape=(10, 6 + (self.max_turns * 2)), dtype='uint8') #WHAT IS THIS FIRST NUMBER FOR?
+        #state = np.zeros(shape=(10, 6 + (self.max_turns * 2)), dtype='uint8') 
 
         state = np.zeros(shape=(10, 10 + (self.max_turns * 2)), dtype='uint8') #ADDED THIS
 
@@ -1008,19 +1030,21 @@ class City:
         state[0, 4] = int(self.orig_dead)  # Original number dead
         state[0, 5] = int(self.score)  # Score on a given turn (trying to maximize)
         
-        state[0, 6] = int(self.num_resources_used) #ADDED THIS 
-        #WE have to move self.num_resources_used to Main Parameters or to calculated by averaging in init
-
+        state[0, 6] = int(self.num_resources_used) #ADDED THIS #also moved self.num_resources_used to Main Parameters
+        #CHECK TO SEE IF THIS VARIABLE CAN GO UNDER ZERO 
+        #IF IT DOES, EITHER CHANGE THE ZGAMEENV.PY PARAMETERS OR SCALE INT(SELF.NUM_RESOURCES_USED + 20) (EX.)
+        
         # Set the state information for the different neighborhoods
         # Don't need to worry about order here as neighborhoods are stored in a list
         # Remember the state should not have the raw values, but the masked values (none, few, many)
         for i in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[i]
             nbh_data = nbh.get_data()
-            #DO WE NEED TO CHANGE THE ORIGINALS STUFF?
+            
             state[i + 1, 0] = nbh_data.get('original_alive', 0)  # i + 1 since i starts at 0 and 0 is already filled
             state[i + 1, 1] = nbh_data.get('original_dead', 0)
-            #state[i + 1, 2] = nbh_data.get('num_active', 0).value #SHOULD we get rid of the num_active and num_sickly based upon our implementation of the scoring system?
+            #CAN ADD MORE SPACE IN STATE FOR OTHER ORIGINAL STATS
+            #state[i + 1, 2] = nbh_data.get('num_active', 0).value 
             #state[i + 1, 3] = nbh_data.get('num_sickly', 0).value
             #state[i + 1, 4] = nbh_data.get('num_zombie', 0).value
             #state[i + 1, 5] = nbh_data.get('num_dead', 0).value
@@ -1033,7 +1057,7 @@ class City:
             state[i + 1, 7] = nbh_data.get('num_zombie_bitten', 0).value 
             state[i + 1, 8] = nbh_data.get('num_dead', 0).value 
             state[i + 1, 9] = nbh_data.get('num_ashen', 0).value 
-            #state[i + 1, 10] = nbh_data.get('num_resources_used', 0).value #probably don't need this here
+            #state[i + 1, 10] = nbh_data.get('num_resources_used', 0).value 
 
             for j in range(len(nbh.deployments)):
                 #state[i + 1, j + 6] = nbh.deployments[j].value
