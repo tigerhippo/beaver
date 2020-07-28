@@ -117,8 +117,8 @@ class City:
         dead_loc.orig_dead += num
 
         #randomly rolls chance to not have flu or zombies
-        rand1 = random.randrange(0, 1)
-        rand2 = random.randrange(0, 1)
+        rand1 = random.random()
+        rand2 = random.random()
         if(rand1 > 0.05):
             # Add 1 zombie in a random location
             zombie_loc_index = random.choice(range(len(self.neighborhoods)))
@@ -482,7 +482,7 @@ class City:
         return total_trust / len(self.neighborhoods)
     
     def check_mutation(self):
-        random = random.randrange(0, 1)
+        random = random.random()
         if random < 0.1:
             roll_mutation = random.randint(0, 7)
             if roll_mutation == 0 and self.mutation_status['faster'] == False:
@@ -760,11 +760,14 @@ class City:
                 rise_prob *= 1.1
             elif self.mutation_status['slower']:
                 bite_prob * 0.75
-                rise_prob *= 1.1
+                rise_prob *= 0.9
             if self.mutation_status['lethality up']:
                 turn_prob *= 1.5
             elif self.mutation_status['lethality down']:
                 turn_prob *= 0.5
+            #update based on lunatics in the neighborhood
+            if nbh.get_data().get('lunatic') > 0:
+                bite_prob *= 1.1
 
             # Zombie Laws
             for npc in nbh.NPCs:
@@ -894,7 +897,9 @@ class City:
     def _bag_adjust_quarantine(self, nbh):
         for npc in nbh.NPCs:
             disobey_chance = npc.get_trust() / 100
-            chance = random.randrange(0, 1)
+            if npc.get_fear() > 60:
+                disobey_chance -= npc.get_fear() / 200
+            chance = random.random()
             if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
                 # push out active people
                 if npc.active:
@@ -912,7 +917,9 @@ class City:
                 if temp_nbh.location is loc:
                     for npc in temp_nbh.NPCs:
                         disobey_chance = npc.get_trust() / 100
-                        chance = random.randrange(0, 1)
+                        if npc.get_fear() > 60:
+                            disobey_chance -= npc.get_fear() / 200
+                        chance = random.random()
                         if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
                             if npc.sickly:
                                 for _ in range(10):
@@ -926,7 +933,9 @@ class City:
                 if temp_nbh.location is loc:
                     for npc in temp_nbh.NPCs:
                         disobey_chance = npc.get_trust() / 100
-                        chance = random.randrange(0, 1)
+                        if npc.get_fear() > 60:
+                            disobey_chance -= npc.get_fear() / 200
+                        chance = random.random()
                         if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
                             # Sometimes people listen
                             if npc.active:
@@ -940,7 +949,9 @@ class City:
                 if temp_nbh.location is loc:
                     for npc in temp_nbh.NPCs:
                         disobey_chance = npc.get_trust() / 100
-                        chance = random.randrange(0, 1)
+                        if npc.get_fear() > 60:
+                            disobey_chance -= npc.get_fear() / 200
+                        chance = random.random()
                         if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
                             # Sometimes people listen
                             if (npc.state_zombie is not NPC_STATES_ZOMBIE.ZOMBIE) or (npc.state_dead is not NPC_STATES_DEAD.DEAD):
@@ -951,7 +962,9 @@ class City:
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
             disobey_chance = npc.get_trust() / 100
-            chance = random.randrange(0, 1)
+            if npc.get_fear() > 60:
+                disobey_chance -= npc.get_fear() / 200
+            chance = random.random()
             if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
                 # People who are sickly and active want to stay in place
                 if npc.sickly or npc.active:
@@ -961,7 +974,9 @@ class City:
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
             disobey_chance = npc.get_trust() / 100
-            chance = random.randrange(0, 1)
+            if npc.get_fear() > 60:
+                disobey_chance -= npc.get_fear() / 200
+            chance = random.random()
             if (npc.get_personality() != 'karen' or npc.get_personality() != 'rebel' or npc.get_personality() != 'lunatic') or chance < disobey_chance:
                 # People who are sickly and active want to stay in place
                 if npc.sickly or npc.active:

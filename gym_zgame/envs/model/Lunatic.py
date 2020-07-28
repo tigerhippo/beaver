@@ -9,23 +9,6 @@ class Lunatic(NPC):
         self.personality = "lunatic"
         #self.percent = 0.01 #6th largest percent of population
 
-    #may choose to infect others on purpose due to craziness
-    def _infectOthers_(self):
-        #50% chance they can infect others
-        num = random.randint(0, 9)
-
-        others_infected = False
-        if num < 5:
-            addFear_by = 5
-            addTrust_by = -5
-            addMorale_by = -5
-            factors = [addFear_by, addTrust_by, addMorale_by] 
-            self.atts.change_allfactors(factors)
-            others_infected = True
-            #necessary to tell another class that 50% of the people in this neighborhood get infected
-
-        #return others_infected
-
     def increment_fear(self, increment):
         self.fear = 20
     def increment_morale(self, increment):
