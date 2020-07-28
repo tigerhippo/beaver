@@ -22,6 +22,7 @@ class City:
         self.total_score = 0
         self.turn = 0
         self.max_turns = 14  # each turn represents one day
+        self.num_resources_used = 0 #keeps track of the number of resources used up
         #calculated by averaging all the attribute values of all the neighborhoods
         self.fear = 0
         self.morale = 0
@@ -46,7 +47,7 @@ class City:
         self.num_moving = 0 
         self.num_active = 0 
         self.num_sickly = 0 
-        self.num_resources_used = 0 #keeps track of the number of resources used up #use this
+        #self.num_resources_used = 0 #keeps track of the number of resources used up #use this
         self.update_summary_stats()
 
     def _init_neighborhoods(self, loc_npc_range):
@@ -185,7 +186,7 @@ class City:
         num_moving = 0
         num_active = 0
         num_sickly = 0
-        num_resources_used = 0 #tracks resources used
+        #num_resources_used = 0 #tracks resources used
 
         for nbh in self.neighborhoods:
             nbh_stats = nbh.get_data()
@@ -206,7 +207,7 @@ class City:
             num_moving += nbh_stats.get('num_moving', 0)
             num_active += nbh_stats.get('num_active', 0)
             num_sickly += nbh_stats.get('num_sickly', 0)
-            num_resources_used += nbh_stats.get('num_resources_used', 0) #tracks resources used
+            #num_resources_used += nbh_stats.get('num_resources_used', 0) #tracks resources used
 
         self.fear = fear
         self.morale = morale
@@ -225,7 +226,7 @@ class City:
         self.num_moving = num_moving
         self.num_active = num_active
         self.num_sickly = num_sickly
-        self.num_resources_used = num_resources_used #tracks resources used
+        #self.num_resources_used = num_resources_used #tracks resources used
 
     def do_turn(self, actions):
         loc_1 = actions[0][0]  # Unpack for readability
@@ -254,6 +255,9 @@ class City:
         self.total_score += score
         self.resources += 5 #added more resources per turn
         self.turn += 1
+        #ADDED THESE TWO LINES:
+        resources_used_up = self.get_num_resources_used() 
+        self.num_resources_used = resources_used_up
         return score, done
 
     def _add_buildings_to_locations(self, nbh_1_index, dep_1, nbh_2_index, dep_2):
@@ -280,16 +284,16 @@ class City:
                 if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
                     nbh_cost += 10 #high cost 
                 elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
-                    nbh_cost += 5 #moderate-high cost  
+                    nbh_cost += 5 #medium cost  
                 elif dep is DEPLOYMENTS.FLU_VACCINE_MAN:
-                    nbh_cost += 5   
+                    nbh_cost += 5 #medium cost
                 elif dep is DEPLOYMENTS.PHEROMONES_MEAT:
-                    nbh_cost += 5 #high cost  
+                    nbh_cost += 5 #medium cost  
                 elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
                     if nbh.num_active >= 5:
-                        nbh_cost -= 5
+                        nbh_cost -= 5 #medium negative cost
                 elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
-                    nbh_cost -= 5
+                    nbh_cost -= 5 #medium negative cost
                 elif dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
                     nbh_cost += 10 #high cost
                 elif dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
@@ -923,6 +927,9 @@ class City:
     def check_done(self):
         return self.turn >= self.max_turns
     
+    def get_num_resources_used(self):
+        return self.num_resources_used
+
     #changed the weights and factors involved with calculating score
     def get_score(self):
         self.update_summary_stats()
@@ -989,7 +996,9 @@ class City:
 
     def rl_encode(self):
         # Set up data structure for the state space, must match the ZGameEnv!
-        state = np.zeros(shape=(10, 6 + (self.max_turns * 2)), dtype='uint8')
+        #state = np.zeros(shape=(10, 6 + (self.max_turns * 2)), dtype='uint8') #WHAT IS THIS FIRST NUMBER FOR?
+
+        state = np.zeros(shape=(10, 10 + (self.max_turns * 2)), dtype='uint8') #ADDED THIS
 
         # Set the state information for the global state
         state[0, 0] = int(self.fear)  # Global Fear
@@ -998,9 +1007,9 @@ class City:
         state[0, 3] = int(self.orig_alive)  # Original number alive
         state[0, 4] = int(self.orig_dead)  # Original number dead
         state[0, 5] = int(self.score)  # Score on a given turn (trying to maximize)
-
-        #ADDED THIS:
-        #state[0, 6] = int(self.num_resources_used) #we might have to move self.num_resources_used to Main Parameters or to calculated by averaging in init
+        
+        state[0, 6] = int(self.num_resources_used) #ADDED THIS 
+        #WE have to move self.num_resources_used to Main Parameters or to calculated by averaging in init
 
         # Set the state information for the different neighborhoods
         # Don't need to worry about order here as neighborhoods are stored in a list
@@ -1008,32 +1017,27 @@ class City:
         for i in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[i]
             nbh_data = nbh.get_data()
+            #DO WE NEED TO CHANGE THE ORIGINALS STUFF?
             state[i + 1, 0] = nbh_data.get('original_alive', 0)  # i + 1 since i starts at 0 and 0 is already filled
             state[i + 1, 1] = nbh_data.get('original_dead', 0)
-            state[i + 1, 2] = nbh_data.get('num_active', 0).value
-            state[i + 1, 3] = nbh_data.get('num_sickly', 0).value
-            state[i + 1, 4] = nbh_data.get('num_zombie', 0).value
-            state[i + 1, 5] = nbh_data.get('num_dead', 0).value
+            #state[i + 1, 2] = nbh_data.get('num_active', 0).value #SHOULD we get rid of the num_active and num_sickly based upon our implementation of the scoring system?
+            #state[i + 1, 3] = nbh_data.get('num_sickly', 0).value
+            #state[i + 1, 4] = nbh_data.get('num_zombie', 0).value
+            #state[i + 1, 5] = nbh_data.get('num_dead', 0).value
 
-        #DO WE NEED TO CHANGE THE ORIGINALS STUFF
-            #ADDED THIS:
-        #immune_weight = 2.0 #1st (largest) but positive +
-        #healthy_weight = 1.5 #2nd +
-        #incubating_weight = 1.0 #3rd +
-        #flu_weight = 0.5 #4th +
-        #zombie_weight = 1.5 #1st (largest) but negative -
-        #zombie_bitten_weight = 1.25 #2nd -
-        #dead_weight = 1.0 #3rd -
-        #ashen_weight = 0.5 #4th -
-        #resources_used_weight = 0.5 #5th -
-            #state[i + 1, num_immune] = nbh_data.get('num_immune', 0).value #should we get rid of the num_active and num_sickly based upon our implementation of the scoring system
-            #state[i + 1, num_healthy]
-            #state[i + 1, num_incubating]
-            #state[i + 1, num_flu]
-            #state[i + 1, num_zombie]
+            state[i + 1, 2] = nbh_data.get('num_immune', 0).value #ADDED THESE TO STATE SPACE TO REFLECT OUR SCORING FACTORS BETTER
+            state[i + 1, 3] = nbh_data.get('num_healthy', 0).value 
+            state[i + 1, 4] = nbh_data.get('num_incubating', 0).value 
+            state[i + 1, 5] = nbh_data.get('num_flu', 0).value 
+            state[i + 1, 6] = nbh_data.get('num_zombie', 0).value 
+            state[i + 1, 7] = nbh_data.get('num_zombie_bitten', 0).value 
+            state[i + 1, 8] = nbh_data.get('num_dead', 0).value 
+            state[i + 1, 9] = nbh_data.get('num_ashen', 0).value 
+            #state[i + 1, 10] = nbh_data.get('num_resources_used', 0).value #probably don't need this here
 
             for j in range(len(nbh.deployments)):
-                state[i + 1, j + 6] = nbh.deployments[j].value
+                #state[i + 1, j + 6] = nbh.deployments[j].value
+                state[i + 1, j + 10] = nbh.deployments[j].value #ADDED THIS
 
         return state
 
