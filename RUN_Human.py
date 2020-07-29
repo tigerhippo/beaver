@@ -19,6 +19,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     validate_data(args.outfile, allow_creation=args.creation)
     data_log_file = args.outfile
-    os.system('mode con: cols=125 lines=62'
+    os.system('mode con: cols=125 lines=62')
     zgame_env = ZGame(data_log_file)
     zgame_env.run()
