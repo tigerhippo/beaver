@@ -22,6 +22,7 @@ class City:
         self.total_score = 0
         self.turn = 0
         self.max_turns = 14  # each turn represents one day
+        self.num_resources_used = 0 #keeps track of the number of resources used up
         #calculated by averaging all the attribute values of all the neighborhoods
         self.fear = 0
         self.morale = 0
@@ -33,10 +34,11 @@ class City:
                             DEPLOYMENTS.FIREBOMB_BARRAGE, DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY]
         # Keep summary stats up to date for ease
         self.num_npcs = 0
-        self.num_alive = 0
-        self.num_dead = 0
-        self.num_ashen = 0
+        self.num_alive = 0 
+        self.num_dead = 0 #use this
+        self.num_ashen = 0 #use this
         self.num_human = 0
+<<<<<<< HEAD
         self.num_zombie_bitten = 0
         self.num_zombie = 0
         self.num_healthy = 0
@@ -50,6 +52,18 @@ class City:
         self.mutation_status = {'faster': False, 'slower': False, 'lethality up': False, 'lethality down': False, 'hinder cure': False, 'hinder vaccine': False, 'reverse immunity': False}
         self.zombie_quiet = False
         self.flu_quiet = False
+=======
+        self.num_zombie_bitten = 0 #use this
+        self.num_zombie = 0 #use this
+        self.num_healthy = 0 #use this
+        self.num_incubating = 0 #use this
+        self.num_flu = 0 #use this
+        self.num_immune = 0 #use this
+        self.num_moving = 0 
+        self.num_active = 0 
+        self.num_sickly = 0 
+        #self.num_resources_used = 0 #keeps track of the number of resources used up #use this
+>>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
         self.update_summary_stats()
 
     def _init_neighborhoods(self, loc_npc_range):
@@ -141,7 +155,7 @@ class City:
             zombie_npcs.append(zombie_npc)
             self.zombie_quiet = False
         zombie_loc.add_NPCs(zombie_npcs)
-        zombie_loc.orig_zombie += num
+        #zombie_loc.orig_zombie += num #CAUSING AN ERROR THAT NEEDS TO BE FIXED
 
         #generate a random number of flu incubations - could be zero
         flu_npcs = []
@@ -154,7 +168,7 @@ class City:
             flu_npcs.append(flu_npc)
             self.flu_quiet = False
         flu_loc.add_NPCs(flu_npcs)
-        flu_loc.orig_flu += num
+        #flu_loc.orig_flu += num
 
     def _get_original_state_metrics(self):
         og_alive = 0
@@ -183,6 +197,7 @@ class City:
         num_moving = 0
         num_active = 0
         num_sickly = 0
+        #num_resources_used = 0 #tracks resources used
 
         for nbh in self.neighborhoods:
             nbh_stats = nbh.get_data()
@@ -203,6 +218,7 @@ class City:
             num_moving += nbh_stats.get('num_moving', 0)
             num_active += nbh_stats.get('num_active', 0)
             num_sickly += nbh_stats.get('num_sickly', 0)
+            #num_resources_used += nbh_stats.get('num_resources_used', 0) #tracks resources used
 
         self.fear = fear / len(self.neighborhoods)
         self.morale = morale / len(self.neighborhoods)
@@ -222,6 +238,7 @@ class City:
         self.num_moving = num_moving
         self.num_active = num_active
         self.num_sickly = num_sickly
+        #self.num_resources_used = num_resources_used #tracks resources used
 
     def do_turn(self, actions):
         loc_1 = actions[0][0]  # Unpack for readability
@@ -245,12 +262,19 @@ class City:
         # Update state info
         done = self.check_done()
         self.update_summary_stats()
-        self.resources += 1
+        score = self.get_score()
+        self.score = score
+        self.total_score += score
+        self.resources += 5 #added more resources per turn
         self.turn += 1
-        return done
+        #ADDED THESE TWO LINES:
+        resources_used_up = self.get_num_resources_used() 
+        self.num_resources_used = resources_used_up
+        return score, done
 
     def _add_buildings_to_locations(self, nbh_1_index, dep_1, nbh_2_index, dep_2):
         # Update the list of deployments at that location
+<<<<<<< HEAD
         if self.neighborhoods[nbh_1_index].get_riot_status() == False:
             self.neighborhoods[nbh_1_index].add_deployment(dep_1)
             self.change_attributes_deployments(self.neighborhoods[nbh_1_index], dep_1)
@@ -357,6 +381,21 @@ class City:
         nbh.raise_total_average_fear(fear_increment)
         nbh.raise_total_average_morale(morale_increment)
         nbh.raise_total_average_trust(trust_increment)
+=======
+        #resources_used_up = self.resources_available() #CHECKS IF RESOURCES ARE USED UP
+        #if resources_used_up == True:
+            #CHECK ALL DEPLOYMENTS WHICH COST RESOURCES TO SEE IF THE DEPLOYMENT ADDED IS ONE OF THEM
+            #if dep_1 is not DEPLOYMENTS.Z_CURE_CENTER_FDA and dep_1 is not DEPLOYMENTS.Z_CURE_CENTER_EXP and dep_1 is not DEPLOYMENTS.FLU_VACCINE_MAN and dep_1 is not DEPLOYMENTS.PHEROMONES_MEAT and dep_1 is not DEPLOYMENTS.FIREBOMB_BARRAGE and dep_1 is not DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY
+                #self.neighborhoods[nbh_1_index].add_deployment(dep_1) 
+            #if dep_2 is not DEPLOYMENTS.Z_CURE_CENTER_FDA and dep_2 is not DEPLOYMENTS.Z_CURE_CENTER_EXP and dep_2 is not DEPLOYMENTS.FLU_VACCINE_MAN and dep_2 is not DEPLOYMENTS.PHEROMONES_MEAT and dep_2 is not DEPLOYMENTS.FIREBOMB_BARRAGE and dep_2 is not DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY
+                #self.neighborhoods[nbh_2_index].add_deployment(dep_2)
+        #else:
+            #self.neighborhoods[nbh_1_index].add_deployment(dep_1)
+            #self.neighborhoods[nbh_2_index].add_deployment(dep_2)
+
+        self.neighborhoods[nbh_1_index].add_deployment(dep_1)
+        self.neighborhoods[nbh_2_index].add_deployment(dep_2)
+>>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
 
     def update_states(self):
         self._update_trackers()
@@ -364,6 +403,7 @@ class City:
         self._update_artificial_states()
         self._update_natural_states()
 
+<<<<<<< HEAD
     def _update_global_states(self):
         self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
         if self.resources < 0:
@@ -372,6 +412,9 @@ class City:
         self.update_attributes()
         self.check_mutations()
 
+=======
+    #@staticmethod
+>>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
     def determine_increment_resources(self):
         # Update resource increments for per-turn deployments
         resource_cost_per_turn = 0
@@ -380,7 +423,9 @@ class City:
             nbh_cost = 0
             for dep in nbh.deployments:
                 # deployments not included do not have fear or resources costs
+                #MAKE THESE CHANGES MORE DRASTIC LIKE BETWEEN 5-10 OR SOMETHING
                 if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
+<<<<<<< HEAD
                     nbh_cost += 1
                 if dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
                     nbh_cost += 1
@@ -397,15 +442,55 @@ class City:
                     nbh_cost += 1
                 if dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
                     nbh_cost += 1
+=======
+                    nbh_cost += 10 #high cost 
+                elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
+                    nbh_cost += 5 #medium cost  
+                elif dep is DEPLOYMENTS.FLU_VACCINE_MAN:
+                    nbh_cost += 5 #medium cost
+                elif dep is DEPLOYMENTS.PHEROMONES_MEAT:
+                    nbh_cost += 5 #medium cost  
+                elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
+                    if nbh.num_active >= 5:
+                        nbh_cost -= 5 #medium negative cost
+                        #nbh_cost += 0 #adds to resources so no need to add to cost
+                        #self.resources += 5 #ADDED THIS TO VARIABLE KEEPING TRACK OF RESOURCES AVAILABLE TO PLAYER
+                elif dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
+                    nbh_cost -= 5 #medium negative cost
+                    #nbh_cost += 0 #adds to resources so no need to add to cost
+                    #self.resources += 5 #ADDED THIS TO VARIABLE KEEPING TRACK OF RESOURCES AVAILABLE TO PLAYER
+                elif dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
+                    nbh_cost += 10 #high cost
+                elif dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
+                    nbh_cost += 1 #low cost
+>>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
             #applies the morale or high fear resource increase/decrease
-            nbh_cost *= determine_resource_discount(self, nbh, nbh_cost)
+            nbh_cost *= determine_resource_discount(self, nbh, nbh_cost) 
             resource_cost_per_turn += nbh_cost
+<<<<<<< HEAD
         self.resources_spent += resource_cost_per_turn
         return resource_cost_per_turn
     def determine_resource_discount(self, nbh, og_cost):
         #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
         discount = 1.0
         if nbh.get_data().get('fear') > 80:
+=======
+            self.num_resources_used += resource_cost_per_turn #adds number of resources used up for this turn to instance variable tracking total for game
+        return resource_cost_per_turn 
+
+    #CHECKS IF PLAYER USED UP ALL RESOURCES THAT ARE AVAILABLE TO THEM
+    #def resources_available(self):
+        #resources_used_up = False
+        #if(self.num_resources_used >= self.resources):
+            #resources_used_up = True
+        #return resources_used_up
+    
+    #@staticmethod
+    def determine_resource_discount(self, nbh, og_cost):
+        #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
+        discount = 1.0
+        if nbh.get_fear() > 80:
+>>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
             discount *= 1.5
         elif nbh.get_data().get('fear') > 60:
             discount *= 1.25
@@ -415,15 +500,25 @@ class City:
             discount *= 0.75
         elif nbh.get_data().get('morale') < 20:
             discount *= 1.5
+<<<<<<< HEAD
         elif nbh.get_data().get('morale') < 40:
             discount *= 1.25
+=======
+        elif nbh.get_morale() < 40:
+            discount *= 1.25 
+>>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
         return discount
 
     def _destroy_upkeep_deployments(self):
         for nbh in self.neighborhoods:
             nbh.destroy_deployments_by_type(self.UPKEEP_DEPS)
 
+<<<<<<< HEAD
     #FOR NOW ONLY FOR PASSIVE PER-TURN INCREASES (will add other sources later)
+=======
+    #FOR NOW ONLY FOR DEPLOYMENTS + PASSIVE PER-TURN INCREASES (will add other sources later)
+    #@staticmethod
+>>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
     def update_attributes(self):
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
@@ -435,45 +530,50 @@ class City:
                 fear_increment += 10
                 morale_increment -= 10
                 trust_increment -= 5
-            else:
-                fear_increment -= 10
-                morale_increment += 5
-                trust_increment += 1
+            #else: #WE PROBABLY SHOULDN'T CHANGE FEAR/TRUST/MORALE IF THERE ARE FEWER ZOMBIES, BECAUSE THE FACT THAT THERE ARE ZOMBIES MAKES FEAR INCREASE
+                #fear_increment -= 10
+                #morale_increment += 5
+                #trust_increment += 1
             if(nbh.get_data()["num_flu"] > nbh.get_data()["num.alive"] / 2):
                 fear_increment += 5
                 morale_increment -= 5
                 trust_increment -= 2
-            else:
-                fear_increment -= 5
-                morale_increment += 2
-                trust_increment += 1
+            #else:
+                #fear_increment -= 5
+                #morale_increment += 2
+                #trust_increment += 1
             if(nbh.get_data()["num_dead"] + nbh.get_data()["num_ashen"] > nbh.get_data()["num.alive"]):
                 fear_increment += 10
                 morale_increment -= 10
                 trust_increment -= 5
-            else:
-                fear_increment -= 10
-                morale_increment += 5
-                trust_increment += 1
+            #else:
+                #fear_increment -= 10
+                #morale_increment += 5
+                #trust_increment += 1
+
             #adds the increments to all the members in a neighborhood
             nbh.raise_total_average_fear(fear_increment)
             nbh.raise_total_average_morale(morale_increment)
             nbh.raise_total_average_trust(trust_increment)
+            
         self.fear = calculate_city_fear()
         self.morale = calculate_city_morale()
         self.trust = calculate_city_trust()
+
     def _calculate_city_fear(self):
         total_fear = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
             total_fear += nbh.get_data().get('fear')
         return total_fear / len(self.neighborhoods)
+        
     def _calculate_city_morale(self):
         total_morale = 0.0
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
             total_morale += nbh.get_data().get('morale')
         return total_morale / len(self.neighborhoods)
+
     def _calculate_city_trust(self):
         total_trust = 0.0
         for nbh_index in range(len(self.neighborhoods)):
@@ -973,6 +1073,7 @@ class City:
     def _bag_adjust_social_distancing_celeb(self, nbh):
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
+<<<<<<< HEAD
             disobey_chance = npc.get_trust() / 100
             if npc.get_fear() > 60:
                 disobey_chance -= npc.get_fear() / 200
@@ -983,6 +1084,13 @@ class City:
                     for _ in range(9):
                         npc.add_to_bag(NPC_ACTIONS.STAY)
             
+=======
+            # People who are sickly and active want to stay in place
+            if npc.sickly or npc.active:
+                for _ in range(9):
+                    npc.add_to_bag(NPC_ACTIONS.STAY)
+
+>>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
     def process_moves(self):
         # Non-dead, non-zombie people
         self._normal_moves()
@@ -1055,10 +1163,52 @@ class City:
 
     def check_done(self):
         return self.turn >= self.max_turns
+    
+    def get_num_resources_used(self):
+        return self.num_resources_used
+
+    #changed the weights and factors involved with calculating score
+    def get_score(self):
+        self.update_summary_stats()
+
+        immune_weight = 2.0 #1st (largest) but positive +
+        healthy_weight = 1.5 #2nd +
+        incubating_weight = 1.0 #3rd +
+        flu_weight = 0.5 #4th +
+        zombie_weight = 1.5 #1st (largest) but negative -
+        zombie_bitten_weight = 1.25 #2nd -
+        dead_weight = 1.0 #3rd -
+        ashen_weight = 0.5 #4th -
+        resources_used_weight = 0.5 #5th -
+
+        immune_score = self.num_immune * immune_weight
+        healthy_score = self.num_healthy * healthy_weight
+        incubating_score = self.num_incubating * incubating_weight
+        flu_score = self.num_flu * flu_weight
+        zombie_score = self.num_zombie * zombie_weight
+        zombie_bitten_score = self.num_zombie_bitten * zombie_bitten_weight
+        dead_score = self.num_dead * dead_weight
+        ashen_score = self.num_ashen * ashen_weight
+        resources_used_score = self.num_resources_used * resources_used_weight
+
+        score = immune_score + healthy_score + incubating_score + flu_score - zombie_score - zombie_bitten_score - dead_score - ashen_score - resources_used_score
+     
+        #active_weight = 1.0
+        #sickly_weight = 0.5
+        #fear_weight = 1.0
+        #zombie_weight = 2.0
+        #score = (self.num_active * active_weight) + \
+                #(self.num_sickly * sickly_weight) - \
+                #(self.fear * fear_weight) - \
+                #(self.num_zombie * zombie_weight) 
+
+        scaled_score = np.floor((score + 800) / 100)  # scaled to fit env state space range
+        return scaled_score
 
     def get_data(self):
         self.update_summary_stats()
-        city_data = {'fear': self.fear,
+        city_data = {'score': self.get_score(),
+                     'fear': self.fear,
                      'morale': self.morale,
                      'trust': self.trust,
                      'resources': self.resources,
@@ -1079,6 +1229,7 @@ class City:
                      'num_sickly': self.num_sickly,
                      'original_alive': self.orig_alive,
                      'original_dead': self.orig_dead,
+<<<<<<< HEAD
                      'faster': self.mutation_status['faster'],
                      'slower': self.mutation_status['slower'],
                      'lethality up': self.mutation_status['lethality up'],
@@ -1086,11 +1237,16 @@ class City:
                      'hinder cure': self.mutation_status['hinder cure'],
                      'hinder vaccine': self.mutation_status['hinder vaccine'],
                      'reverse immunity': self.mutation_status['reverse immunity']}
+=======
+                     'num_resources_used': self.num_resources_used} #ADDED THIS PART TO TRACK RESOURCES USED
+>>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
         return city_data
 
     def rl_encode(self):
         # Set up data structure for the state space, must match the ZGameEnv!
-        state = np.zeros(shape=(10, 6 + (self.max_turns * 2)), dtype='uint8')
+        #state = np.zeros(shape=(10, 6 + (self.max_turns * 2)), dtype='uint8') 
+
+        state = np.zeros(shape=(10, 10 + (self.max_turns * 2)), dtype='uint8') #ADDED THIS
 
         # Set the state information for the global state
         state[0, 0] = int(self.fear)  # Global Fear
@@ -1099,21 +1255,40 @@ class City:
         state[0, 3] = int(self.orig_alive)  # Original number alive
         state[0, 4] = int(self.orig_dead)  # Original number dead
         state[0, 5] = int(self.score)  # Score on a given turn (trying to maximize)
-
+        
+        y = lambda x : (2 / 3) * x + (200 / 3)
+        state[0, 6] = int(y(self.num_resources_used)) #ADDED THIS #also moved self.num_resources_used to Main Parameters
+        #CHECK TO SEE IF THIS VARIABLE CAN GO UNDER ZERO 
+        #IF IT DOES, EITHER CHANGE THE ZGAMEENV.PY PARAMETERS OR SCALE INT(SELF.NUM_RESOURCES_USED + 20) (EX.)
+        
         # Set the state information for the different neighborhoods
         # Don't need to worry about order here as neighborhoods are stored in a list
         # Remember the state should not have the raw values, but the masked values (none, few, many)
         for i in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[i]
             nbh_data = nbh.get_data()
+            
             state[i + 1, 0] = nbh_data.get('original_alive', 0)  # i + 1 since i starts at 0 and 0 is already filled
             state[i + 1, 1] = nbh_data.get('original_dead', 0)
-            state[i + 1, 2] = nbh_data.get('num_active', 0).value
-            state[i + 1, 3] = nbh_data.get('num_sickly', 0).value
-            state[i + 1, 4] = nbh_data.get('num_zombie', 0).value
-            state[i + 1, 5] = nbh_data.get('num_dead', 0).value
+            #CAN ADD MORE SPACE IN STATE FOR OTHER ORIGINAL STATS
+            #state[i + 1, 2] = nbh_data.get('num_active', 0).value 
+            #state[i + 1, 3] = nbh_data.get('num_sickly', 0).value
+            #state[i + 1, 4] = nbh_data.get('num_zombie', 0).value
+            #state[i + 1, 5] = nbh_data.get('num_dead', 0).value
+
+            state[i + 1, 2] = nbh_data.get('num_immune', 0).value #ADDED THESE TO STATE SPACE TO REFLECT OUR SCORING FACTORS BETTER
+            state[i + 1, 3] = nbh_data.get('num_healthy', 0).value 
+            state[i + 1, 4] = nbh_data.get('num_incubating', 0).value 
+            state[i + 1, 5] = nbh_data.get('num_flu', 0).value 
+            state[i + 1, 6] = nbh_data.get('num_zombie', 0).value 
+            state[i + 1, 7] = nbh_data.get('num_zombie_bitten', 0).value 
+            state[i + 1, 8] = nbh_data.get('num_dead', 0).value 
+            state[i + 1, 9] = nbh_data.get('num_ashen', 0).value 
+            #state[i + 1, 10] = nbh_data.get('num_resources_used', 0).value 
+
             for j in range(len(nbh.deployments)):
-                state[i + 1, j + 6] = nbh.deployments[j].value
+                #state[i + 1, j + 6] = nbh.deployments[j].value
+                state[i + 1, j + 10] = nbh.deployments[j].value #ADDED THIS
 
         return state
 
