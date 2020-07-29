@@ -33,12 +33,8 @@ class Neighborhood:
         self.num_moving = 0
         self.num_active = 0
         self.num_sickly = 0
-<<<<<<< HEAD
-=======
         self.update_summary_stats()
         self.orig_alive, self.orig_dead = self._get_original_state_metrics()
-        #self.orig_zombie = 0
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
         #calculated by averaging the attributes of all residents in the neighborhood
         self.fear = 0
         self.morale = 0

@@ -38,7 +38,6 @@ class City:
         self.num_dead = 0 #use this
         self.num_ashen = 0 #use this
         self.num_human = 0
-<<<<<<< HEAD
         self.num_zombie_bitten = 0
         self.num_zombie = 0
         self.num_healthy = 0
@@ -52,18 +51,6 @@ class City:
         self.mutation_status = {'faster': False, 'slower': False, 'lethality up': False, 'lethality down': False, 'hinder cure': False, 'hinder vaccine': False, 'reverse immunity': False}
         self.zombie_quiet = False
         self.flu_quiet = False
-=======
-        self.num_zombie_bitten = 0 #use this
-        self.num_zombie = 0 #use this
-        self.num_healthy = 0 #use this
-        self.num_incubating = 0 #use this
-        self.num_flu = 0 #use this
-        self.num_immune = 0 #use this
-        self.num_moving = 0 
-        self.num_active = 0 
-        self.num_sickly = 0 
-        #self.num_resources_used = 0 #keeps track of the number of resources used up #use this
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
         self.update_summary_stats()
 
     def _init_neighborhoods(self, loc_npc_range):
@@ -274,7 +261,6 @@ class City:
 
     def _add_buildings_to_locations(self, nbh_1_index, dep_1, nbh_2_index, dep_2):
         # Update the list of deployments at that location
-<<<<<<< HEAD
         if self.neighborhoods[nbh_1_index].get_riot_status() == False:
             self.neighborhoods[nbh_1_index].add_deployment(dep_1)
             self.change_attributes_deployments(self.neighborhoods[nbh_1_index], dep_1)
@@ -381,21 +367,6 @@ class City:
         nbh.raise_total_average_fear(fear_increment)
         nbh.raise_total_average_morale(morale_increment)
         nbh.raise_total_average_trust(trust_increment)
-=======
-        #resources_used_up = self.resources_available() #CHECKS IF RESOURCES ARE USED UP
-        #if resources_used_up == True:
-            #CHECK ALL DEPLOYMENTS WHICH COST RESOURCES TO SEE IF THE DEPLOYMENT ADDED IS ONE OF THEM
-            #if dep_1 is not DEPLOYMENTS.Z_CURE_CENTER_FDA and dep_1 is not DEPLOYMENTS.Z_CURE_CENTER_EXP and dep_1 is not DEPLOYMENTS.FLU_VACCINE_MAN and dep_1 is not DEPLOYMENTS.PHEROMONES_MEAT and dep_1 is not DEPLOYMENTS.FIREBOMB_BARRAGE and dep_1 is not DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY
-                #self.neighborhoods[nbh_1_index].add_deployment(dep_1) 
-            #if dep_2 is not DEPLOYMENTS.Z_CURE_CENTER_FDA and dep_2 is not DEPLOYMENTS.Z_CURE_CENTER_EXP and dep_2 is not DEPLOYMENTS.FLU_VACCINE_MAN and dep_2 is not DEPLOYMENTS.PHEROMONES_MEAT and dep_2 is not DEPLOYMENTS.FIREBOMB_BARRAGE and dep_2 is not DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY
-                #self.neighborhoods[nbh_2_index].add_deployment(dep_2)
-        #else:
-            #self.neighborhoods[nbh_1_index].add_deployment(dep_1)
-            #self.neighborhoods[nbh_2_index].add_deployment(dep_2)
-
-        self.neighborhoods[nbh_1_index].add_deployment(dep_1)
-        self.neighborhoods[nbh_2_index].add_deployment(dep_2)
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
 
     def update_states(self):
         self._update_trackers()
@@ -403,7 +374,6 @@ class City:
         self._update_artificial_states()
         self._update_natural_states()
 
-<<<<<<< HEAD
     def _update_global_states(self):
         self.resources -= self.determine_increment_resources # remove upkeep resources (includes new deployments)
         if self.resources < 0:
@@ -412,9 +382,6 @@ class City:
         self.update_attributes()
         self.check_mutations()
 
-=======
-    #@staticmethod
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
     def determine_increment_resources(self):
         # Update resource increments for per-turn deployments
         resource_cost_per_turn = 0
@@ -425,24 +392,6 @@ class City:
                 # deployments not included do not have fear or resources costs
                 #MAKE THESE CHANGES MORE DRASTIC LIKE BETWEEN 5-10 OR SOMETHING
                 if dep is DEPLOYMENTS.Z_CURE_CENTER_FDA:
-<<<<<<< HEAD
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.FLU_VACCINE_MAN:
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.PHEROMONES_MEAT:
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_ON:
-                    if nbh.num_active >= 5:
-                        nbh_cost -= 1
-                if dep is DEPLOYMENTS.BSL4LAB_SAFETY_OFF:
-                    nbh_cost -= 2
-                if dep is DEPLOYMENTS.FIREBOMB_BARRAGE:
-                    nbh_cost += 1
-                if dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
-                    nbh_cost += 1
-=======
                     nbh_cost += 10 #high cost 
                 elif dep is DEPLOYMENTS.Z_CURE_CENTER_EXP:
                     nbh_cost += 5 #medium cost  
@@ -463,18 +412,9 @@ class City:
                     nbh_cost += 10 #high cost
                 elif dep is DEPLOYMENTS.SOCIAL_DISTANCING_CELEBRITY:
                     nbh_cost += 1 #low cost
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
             #applies the morale or high fear resource increase/decrease
             nbh_cost *= determine_resource_discount(self, nbh, nbh_cost) 
             resource_cost_per_turn += nbh_cost
-<<<<<<< HEAD
-        self.resources_spent += resource_cost_per_turn
-        return resource_cost_per_turn
-    def determine_resource_discount(self, nbh, og_cost):
-        #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
-        discount = 1.0
-        if nbh.get_data().get('fear') > 80:
-=======
             self.num_resources_used += resource_cost_per_turn #adds number of resources used up for this turn to instance variable tracking total for game
         return resource_cost_per_turn 
 
@@ -490,7 +430,6 @@ class City:
         #determines whether resource cost for the turn is increased/decreased based on morale and high fear if applicable
         discount = 1.0
         if nbh.get_fear() > 80:
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
             discount *= 1.5
         elif nbh.get_data().get('fear') > 60:
             discount *= 1.25
@@ -500,25 +439,15 @@ class City:
             discount *= 0.75
         elif nbh.get_data().get('morale') < 20:
             discount *= 1.5
-<<<<<<< HEAD
         elif nbh.get_data().get('morale') < 40:
             discount *= 1.25
-=======
-        elif nbh.get_morale() < 40:
-            discount *= 1.25 
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
         return discount
 
     def _destroy_upkeep_deployments(self):
         for nbh in self.neighborhoods:
             nbh.destroy_deployments_by_type(self.UPKEEP_DEPS)
 
-<<<<<<< HEAD
     #FOR NOW ONLY FOR PASSIVE PER-TURN INCREASES (will add other sources later)
-=======
-    #FOR NOW ONLY FOR DEPLOYMENTS + PASSIVE PER-TURN INCREASES (will add other sources later)
-    #@staticmethod
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
     def update_attributes(self):
         for nbh_index in range(len(self.neighborhoods)):
             nbh = self.neighborhoods[nbh_index]
@@ -1073,7 +1002,6 @@ class City:
     def _bag_adjust_social_distancing_celeb(self, nbh):
         # Some NPCs want to stay here to keep from spreading the disease
         for npc in nbh.NPCs:
-<<<<<<< HEAD
             disobey_chance = npc.get_trust() / 100
             if npc.get_fear() > 60:
                 disobey_chance -= npc.get_fear() / 200
@@ -1084,13 +1012,6 @@ class City:
                     for _ in range(9):
                         npc.add_to_bag(NPC_ACTIONS.STAY)
             
-=======
-            # People who are sickly and active want to stay in place
-            if npc.sickly or npc.active:
-                for _ in range(9):
-                    npc.add_to_bag(NPC_ACTIONS.STAY)
-
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
     def process_moves(self):
         # Non-dead, non-zombie people
         self._normal_moves()
@@ -1229,17 +1150,7 @@ class City:
                      'num_sickly': self.num_sickly,
                      'original_alive': self.orig_alive,
                      'original_dead': self.orig_dead,
-<<<<<<< HEAD
-                     'faster': self.mutation_status['faster'],
-                     'slower': self.mutation_status['slower'],
-                     'lethality up': self.mutation_status['lethality up'],
-                     'lethality down': self.mutation_status['lethality down'],
-                     'hinder cure': self.mutation_status['hinder cure'],
-                     'hinder vaccine': self.mutation_status['hinder vaccine'],
-                     'reverse immunity': self.mutation_status['reverse immunity']}
-=======
                      'num_resources_used': self.num_resources_used} #ADDED THIS PART TO TRACK RESOURCES USED
->>>>>>> 88538eceb917f056a38bbcca91cd13d4ecc2940c
         return city_data
 
     def rl_encode(self):
