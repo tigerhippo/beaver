@@ -64,7 +64,7 @@ class DataAnalysis:
     
     num_deployments_used_human = []
     for i in range(24):
-        num = random.randint(0, 200) #MAX NUMBER OF DEPLOYMENTS A PERSON COULD REASONABLY USE 
+        num = random.randint(0, 56) #MAX NUMBER OF DEPLOYMENTS A PERSON COULD REASONABLY USE 
         num_deployments_used_human.append(num)
 
     xpos_second = [i for i, _ in enumerate(deployments)]
@@ -82,7 +82,7 @@ class DataAnalysis:
 
     num_deployments_used_machine = []
     for i in range(24): 
-        num = random.randint(0, 200) #STILL RANDOM BUT MACHINE WOULD USE SOME DIFFERENT DEPLOYMENTS THAN THE PERSON DID MORE OFTEN
+        num = random.randint(0, 56) #STILL RANDOM BUT MACHINE WOULD USE SOME DIFFERENT DEPLOYMENTS THAN THE PERSON DID MORE OFTEN
         num_deployments_used_machine.append(num)
     
     plt.bar(xpos_second, num_deployments_used_machine, color='blue')
