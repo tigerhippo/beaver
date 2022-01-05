@@ -1,3 +1,7 @@
+# Info
+
+Please see the presentation document in the doc folder on the main branch.
+
 # Z-Game Team Athi 1
 
 BWSI-SG with AI Zombie Game.
